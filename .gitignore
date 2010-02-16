@@ -1,0 +1,6 @@
+build
+test/lib
+test/packages.js
+test/images.json
+.DS_Store
+*/.DS_Store

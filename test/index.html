@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Arcadia tests</title>
+    
+    <script src="http://js.othermedia.com/helium.js" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+        Helium.use('yui', '2.7.0');
+        Helium.use('ojay', 'master');
+    </script>
+    
+    <script src="./packages.js" type="text/javascript"></script>
+    
+    <style type="text/css" media="screen">
+        html, body {margin:0; border:none; padding:0; overflow:hidden;}
+        #gallery {height:500px; overflow:hidden;}
+        .item {float:left;}
+    </style>
+</head><body>
+    
+    <div id="gallery"></div>
+    
+    <script type="text/javascript">
+    require('Ojay.HTTP', 'Arcadia', function() {
+        var json, gallery;
+        
+        Ojay.HTTP.GET('images.json', {}, {
+            onSuccess: function(response) {
+                json    = response.parseJSON();
+                gallery = new Arcadia('#gallery', json);
+            }
+        });
+    });
+    </script>
+    
+</body></html>
