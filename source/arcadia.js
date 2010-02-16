@@ -39,11 +39,7 @@ Arcadia = new JS.Class('Arcadia', {
     extend: {
         Item: new JS.Class({
             initialize: function(spec) {
-                this._uri    = spec.uri;
-                this._name   = spec.name;
-                this._desc   = spec.description;
-                this._width  = spec.width;
-                this._height = spec.height;
+                this._spec = spec;
             },
             
             getHTML: function() {
@@ -52,19 +48,19 @@ Arcadia = new JS.Class('Arcadia', {
                 var self = this;
                 self._html = Ojay(Ojay.HTML.div({className: 'item'}, function(H) {
                     self._image = Ojay(H.img({
-                        alt: self._name,
-                        src: self._uri
+                        alt: self._spec.name,
+                        src: self._spec.uri
                     }));
                     
                     self._descWrapper = Ojay(H.div({className: 'description-wrapper'}, function(W) {
                         self._descToggle  = Ojay(W.div({className: 'description-toggle'}, 'More'));
-                        self._description = Ojay(W.div({className: 'description'}, self._desc));
+                        self._description = Ojay(W.div({className: 'description'}, self._spec.description));
                     }));
                 }));
                 
                 this._html.setStyle({
-                    width:    this._width  + 'px',
-                    height:   this._height + 'px',
+                    width:    this._spec.width  + 'px',
+                    height:   this._spec.height + 'px',
                     overflow: 'hidden',
                     position: 'relative'
                 });
@@ -73,7 +69,7 @@ Arcadia = new JS.Class('Arcadia', {
                     position: 'absolute',
                     left:   0,
                     bottom: 0,
-                    width:  this._width + 'px'
+                    width:  this._spec.width + 'px'
                 });
                 
                 this._descMaxHeight = this._descWrapper.getHeight();
@@ -128,14 +124,13 @@ Arcadia = new JS.Class('Arcadia', {
                 
                 this._thumbnail = Ojay(Ojay.HTML.div({className: 'thumbnail'}, function(H) {
                     H.img({
-                        alt: this._json.name,
-                        src: this._json.thumbnail.uri
+                        alt: this._name,
+                        src: this._spec.thumbnail.uri
                     });
-                }));
-                
-                this._thumbnail.setStyle({
-                    width:  this._json.thumbnail.width  + 'px',
-                    height: this._json.thumbnail.height + 'px'
+                }))
+                .setStyle({
+                    width:  this._spec.thumbnail.width  + 'px',
+                    height: this._spec.thumbnail.height + 'px'
                 });
             }
         })
