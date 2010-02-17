@@ -9,10 +9,14 @@ Arcadia = new JS.Class('Arcadia', {
         ._(this._container).insert(this._viewport, 'after')
         ._(this._viewport).setContent(this._container);
         
-        this._items = json.images.map(function(img) {
-            var item = new this.klass.Item(img);
+        this._items = json.images.map(function(img, i) {
+            var item = new this.klass.Item(this, img);
             
             this._container.insert(item.getHTML(), 'bottom');
+            
+            item.getHTML().on('click', function() {
+                this.setPage(i);
+            }, this);
             
             x += img.width;
             
@@ -23,23 +27,72 @@ Arcadia = new JS.Class('Arcadia', {
             return item;
         }, this);
         
+        this._current = Math.floor(this._items.length / 2);
+        this._left    = 0;
+        
         this._container.setStyle({
-            width:  x + 'px',
-            height: y + 'px'
+            width:    x + 'px',
+            height:   y + 'px',
+            position: 'absolute',
+            top:      0,
+            left:     this.getOffset() + 'px'
         });
+    },
+    
+    balance: function(index) {
+        var offset = 0, left;
+        
+        // Have to add the number of items before applying the mod operator
+        // because JavaScript's mod operation is broken and returns negative
+        // numbers, e.g. -1 % 10 == -1
+        left = (this._left + index - this._current + this._items.length) % this._items.length;
+        
+        this._items.forEach(function(item, i) {
+            if (i >= this._left && i < left) {
+                this._container.insert(item.getHTML(), 'top');
+                offset += item.getWidth();
+            }
+        }, this);
+        
+        this._container.setStyle({
+            left: (this.getOffset() - offset) + 'px'
+        });
+    },
+    
+    getOffset: function() {
+        var portWidth, itemsWidth, currentWidth, offset;
+        
+        portWidth    = this._viewport.getWidth();
+        itemsWidth   = this.getWidth();
+        currentWidth = this._items[this._current].getWidth();
+        offset       = Math.floor((portWidth + currentWidth - itemsWidth) / 2);
+        
+        return offset;
+    },
+    
+    getWidth: function() {
+        return this._items.reduce(function(width, item) {
+            return width + item.getWidth();
+        }, 0);
     },
     
     setPage: function(index) {
         if (this._current === index) return;
         
-        this._items[this._current].hideDescription()
-        ._(this._container);
+        this.balance(index);
+        
+        this._container.animate({
+            left: {
+                to: this.getOffset()
+            }
+        });
     },
     
     extend: {
         Item: new JS.Class({
-            initialize: function(spec) {
-                this._spec = spec;
+            initialize: function(gallery, spec) {
+                this._gallery = gallery;
+                this._spec    = spec;
             },
             
             getHTML: function() {
@@ -88,6 +141,10 @@ Arcadia = new JS.Class('Arcadia', {
                 }, this);
                 
                 return this._html;
+            },
+            
+            getWidth: function() {
+                return this._spec.width;
             },
             
             hideDescription: function() {
