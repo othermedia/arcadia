@@ -43,8 +43,8 @@ Arcadia = new JS.Class('Arcadia', {
         var offset = 0, left;
         
         // Have to add the number of items before applying the mod operator
-        // because JavaScript's mod operation is broken and returns negative
-        // numbers, e.g. -1 % 10 == -1
+        // because the result of applying JavaScript's mod operation has the
+        // same sign as the dividend, e.g. -1 % 10 == -1.
         left = (this._left + index - this._current + this._items.length) % this._items.length;
         
         this._items.forEach(function(item, i) {
