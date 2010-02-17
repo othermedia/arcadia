@@ -40,23 +40,40 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     balance: function(index) {
-        var offset = 0, left;
+        var len = this._items.length, offset, left;
         
         // Have to add the number of items before applying the mod operator
         // because the result of applying JavaScript's mod operation has the
         // same sign as the dividend, e.g. -1 % 10 == -1.
-        left = (this._left + index - this._current + this._items.length) % this._items.length;
-        
-        this._items.forEach(function(item, i) {
-            if (i >= this._left && i < left) {
-                this._container.insert(item.getHTML(), 'top');
-                offset += item.getWidth();
-            }
-        }, this);
+        left    = (this._left + index - this._current);
+        modLeft = (left + len) % len;
+        offset  = this[left < 0 ? 'spliceLeft' : 'spliceRight'](modLeft);
         
         this._container.setStyle({
             left: (this.getOffset() - offset) + 'px'
         });
+    },
+    
+    spliceRight: function(left) {
+        return this._items.reduce(function(offset, item, i) {
+            if (i < left) {
+                this._container.insert(item.getHTML(), 'top');
+                offset -= item.getWidth();
+            }
+            
+            return offset;
+        }.bind(this), 0);
+    },
+    
+    spliceLeft: function(left) {
+        return this._items.reduce(function(offset, item, i) {
+            if (i >= left) {
+                this._container.insert(item.getHTML(), 'bottom');
+                offset += item.getWidth();
+            }
+            
+            return offset;
+        }.bind(this), 0);
     },
     
     getOffset: function() {
@@ -65,7 +82,7 @@ Arcadia = new JS.Class('Arcadia', {
         portWidth    = this._viewport.getWidth();
         itemsWidth   = this.getWidth();
         currentWidth = this._items[this._current].getWidth();
-        offset       = Math.floor((portWidth + currentWidth - itemsWidth) / 2);
+        offset       = Math.floor((portWidth - currentWidth - itemsWidth) / 2);
         
         return offset;
     },
