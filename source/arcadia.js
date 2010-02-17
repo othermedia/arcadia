@@ -30,6 +30,11 @@ Arcadia = new JS.Class('Arcadia', {
         this._current = Math.floor(this._items.length / 2);
         this._left    = 0;
         
+        this._viewport.setStyle({
+            position: 'relative',
+            height:   y + 'px'
+        });
+        
         this._container.setStyle({
             width:    x + 'px',
             height:   y + 'px',
@@ -61,7 +66,7 @@ Arcadia = new JS.Class('Arcadia', {
         // Have to add the number of items before applying the mod operator
         // because the result of applying JavaScript's mod operation has the
         // same sign as the dividend, e.g. -1 % 10 == -1.
-        left    = (this._left + index - this._current);
+        left    = this._left + index - this._current;
         modLeft = (left + len) % len;
         offset  = this[left < 0 ? 'spliceLeft' : 'spliceRight'](modLeft);
         
@@ -119,6 +124,12 @@ Arcadia = new JS.Class('Arcadia', {
                 to: this.getOffset()
             }
         });
+        
+        this._current = index;
+    },
+    
+    getHTML: function() {
+        return this._viewport;
     },
     
     extend: {
@@ -212,15 +223,16 @@ Arcadia = new JS.Class('Arcadia', {
             getThumbnail: function() {
                 if (this._thumbnail) return this._thumbnail;
                 
-                this._thumbnail = Ojay(Ojay.HTML.div({className: 'thumbnail'}, function(H) {
+                var self = this;
+                self._thumbnail = Ojay(Ojay.HTML.div({className: 'thumbnail'}, function(H) {
                     H.img({
-                        alt: this._name,
-                        src: this._spec.thumbnail.uri
+                        alt: self._name,
+                        src: self._spec.thumbnail.uri
                     });
                 }))
                 .setStyle({
-                    width:  this._spec.thumbnail.width  + 'px',
-                    height: this._spec.thumbnail.height + 'px'
+                    width:  self._spec.thumbnail.width  + 'px',
+                    height: self._spec.thumbnail.height + 'px'
                 });
                 
                 return this._thumbnail;
@@ -231,8 +243,6 @@ Arcadia = new JS.Class('Arcadia', {
             initialize: function(gallery) {
                 this._gallery = gallery;
                 this._thumbs  = this._gallery.getThumbnails();
-                
-                this._gallery.insert(this.getHTML(), 'after');
             },
             
             getHTML: function() {
@@ -248,9 +258,9 @@ Arcadia = new JS.Class('Arcadia', {
                     }, this);
                 }, this);
                 
-                this._slider = new ScalingSlider(this._html, {
-                    direction: 'horiztonal'
-                });
+                // this._slider = new ScalingSlider(this._html, {
+                //     direction: 'horiztonal'
+                // });
                 
                 return this._html;
             }
