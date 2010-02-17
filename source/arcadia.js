@@ -37,6 +37,12 @@ Arcadia = new JS.Class('Arcadia', {
             top:      0,
             left:     this.getOffset() + 'px'
         });
+        
+        Ojay(window).on('resize', this.centre, this);
+    },
+    
+    centre: function() {
+        this._container.setStyle({left: this.getOffset() + 'px'});
     },
     
     balance: function(index) {
