@@ -4,6 +4,14 @@ Arcadia
 Arcadia is a full-width image gallery written in JavaScript.
 
 
+Todo
+----
+
+* Re-centre the gallery when the viewport size changes
+* Add a more comprehensive suite of controls
+* Tidy up some of the API
+
+
 Dependencies
 ------------
 
