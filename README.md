@@ -8,6 +8,8 @@ Todo
 ----
 
 * Add a more comprehensive suite of controls
+    - Thumbnails
+    - Play/pause
 * Tidy up some of the API
 
 

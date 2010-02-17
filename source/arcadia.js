@@ -41,6 +41,16 @@ Arcadia = new JS.Class('Arcadia', {
         Ojay(window).on('resize', this.centre, this);
     },
     
+    addThumbnails: function() {
+        return new this.klass.Thumbnails(this);
+    },
+    
+    getThumbnails: function() {
+        return this._items.map(function(item) {
+            return item.getThumbnail();
+        });
+    },
+    
     centre: function() {
         this._container.setStyle({left: this.getOffset() + 'px'});
     },
@@ -212,6 +222,37 @@ Arcadia = new JS.Class('Arcadia', {
                     width:  this._spec.thumbnail.width  + 'px',
                     height: this._spec.thumbnail.height + 'px'
                 });
+                
+                return this._thumbnail;
+            }
+        }),
+        
+        Thumbnails: new JS.Class('Arcadia.Thumbnails', {
+            initialize: function(gallery) {
+                this._gallery = gallery;
+                this._thumbs  = this._gallery.getThumbnails();
+                
+                this._gallery.insert(this.getHTML(), 'after');
+            },
+            
+            getHTML: function() {
+                if (this._html) return this._html;
+                
+                this._html = Ojay(Ojay.HTML.div({className: 'thumbnails'}));
+                
+                this._thumbs.forEach(function(thumb, i) {
+                    this._html.insert(thumb, 'bottom');
+                    
+                    thumb.on('click', function() {
+                        this._gallery.setPage(i);
+                    }, this);
+                }, this);
+                
+                this._slider = new ScalingSlider(this._html, {
+                    direction: 'horiztonal'
+                });
+                
+                return this._html;
             }
         })
     }
