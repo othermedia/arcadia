@@ -67,7 +67,7 @@ Arcadia = new JS.Class('Arcadia', {
         
         length  = this._items.length;
         oldLeft = this._left;
-        newLeft = oldLeft + index - this._current;
+        newLeft = (oldLeft + index - this._current) % length;
         
         if (newLeft < 0) {
             s1       = this._items.slice(newLeft);
@@ -83,8 +83,7 @@ Arcadia = new JS.Class('Arcadia', {
             left: (this.getOffset() - offset) + 'px'
         });
         
-        left       = newLeft % length;
-        this._left = left < 0 ? length + left : left;
+        this._left = newLeft < 0 ? length + newLeft : newLeft;
     },
     
     spliceRight: function(items) {
