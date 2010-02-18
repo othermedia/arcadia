@@ -46,8 +46,8 @@ Arcadia = new JS.Class('Arcadia', {
         Ojay(window).on('resize', this.centre, this);
     },
     
-    addThumbnails: function() {
-        return new this.klass.Thumbnails(this);
+    addControls: function(klass) {
+        return new (klass || this.klass.Controls.Thumbnails)(this);
     },
     
     getThumbnails: function() {
@@ -61,39 +61,43 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     balance: function(index) {
-        var len = this._items.length, offset, left;
+        var length, offset,
+            oldLeft, newLeft, left,
+            splicees, s1, s2;
         
-        // Have to add the number of items before applying the mod operator
-        // because the result of applying JavaScript's mod operation has the
-        // same sign as the dividend, e.g. -1 % 10 == -1.
-        left    = this._left + index - this._current;
-        modLeft = (left + len) % len;
-        offset  = this[left < 0 ? 'spliceLeft' : 'spliceRight'](modLeft);
+        length  = this._items.length;
+        oldLeft = this._left;
+        newLeft = oldLeft + index - this._current;
+        
+        if (newLeft < 0) {
+            s1       = this._items.slice(newLeft);
+            s2       = this._items.slice(0, oldLeft);
+            splicees = s1.concat(s2);
+            offset   = this.spliceLeft(splicees.reverse());
+        } else {
+            splicees = this._items.slice(oldLeft, newLeft);
+            offset   = this.spliceRight(splicees);
+        }
         
         this._container.setStyle({
             left: (this.getOffset() - offset) + 'px'
         });
+        
+        left       = newLeft % length;
+        this._left = left < 0 ? length + left : left;
     },
     
-    spliceRight: function(left) {
-        return this._items.reduce(function(offset, item, i) {
-            if (i < left) {
-                this._container.insert(item.getHTML(), 'top');
-                offset -= item.getWidth();
-            }
-            
-            return offset;
+    spliceRight: function(items) {
+        return items.reduce(function(offset, item) {
+            this._container.insert(item.getHTML(), 'bottom');
+            return offset - item.getWidth();
         }.bind(this), 0);
     },
     
-    spliceLeft: function(left) {
-        return this._items.reduce(function(offset, item, i) {
-            if (i >= left) {
-                this._container.insert(item.getHTML(), 'bottom');
-                offset += item.getWidth();
-            }
-            
-            return offset;
+    spliceLeft: function(items) {
+        return items.reduce(function(offset, item) {
+            this._container.insert(item.getHTML(), 'top');
+            return offset + item.getWidth();
         }.bind(this), 0);
     },
     
@@ -239,31 +243,33 @@ Arcadia = new JS.Class('Arcadia', {
             }
         }),
         
-        Thumbnails: new JS.Class('Arcadia.Thumbnails', {
-            initialize: function(gallery) {
-                this._gallery = gallery;
-                this._thumbs  = this._gallery.getThumbnails();
-            },
-            
-            getHTML: function() {
-                if (this._html) return this._html;
+        Controls: {
+            Thumbnails: new JS.Class('Arcadia.Thumbnails', {
+                initialize: function(gallery) {
+                    this._gallery = gallery;
+                    this._thumbs  = this._gallery.getThumbnails();
+                },
                 
-                this._html = Ojay(Ojay.HTML.div({className: 'thumbnails'}));
-                
-                this._thumbs.forEach(function(thumb, i) {
-                    this._html.insert(thumb, 'bottom');
+                getHTML: function() {
+                    if (this._html) return this._html;
                     
-                    thumb.on('click', function() {
-                        this._gallery.setPage(i);
+                    this._html = Ojay(Ojay.HTML.div({className: 'thumbnails'}));
+                    
+                    this._thumbs.forEach(function(thumb, i) {
+                        this._html.insert(thumb, 'bottom');
+                        
+                        thumb.on('click', function() {
+                            this._gallery.setPage(i);
+                        }, this);
                     }, this);
-                }, this);
-                
-                // this._slider = new ScalingSlider(this._html, {
-                //     direction: 'horiztonal'
-                // });
-                
-                return this._html;
-            }
-        })
+                    
+                    // this._slider = new ScalingSlider(this._html, {
+                    //     direction: 'horiztonal'
+                    // });
+                    
+                    return this._html;
+                }
+            })
+        }
     }
 });
