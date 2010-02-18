@@ -16,6 +16,8 @@
         html, body {margin:0; border:none; padding:0; overflow:hidden;}
         #gallery {height:500px; overflow:hidden;}
         .item {float:left;}
+        .clear:after {}
+        .thumbnail {float:left;}
     </style>
 </head><body>
     
@@ -23,12 +25,18 @@
     
     <script type="text/javascript">
     require('Ojay.HTTP', 'Arcadia', function() {
-        var json, gallery;
+        var json, gallery, thumbs;
         
         Ojay.HTTP.GET('images.json', {}, {
             onSuccess: function(response) {
                 json    = response.parseJSON();
                 gallery = new Arcadia('#gallery', json);
+                thumbs  = gallery.addControls(Arcadia.Controls.Thubmnails);
+                html    = thumbs.getHTML();
+                
+                gallery.getHTML().insert(html, 'after');
+                
+                html.setStyle({height: '200px'});
             }
         });
     });

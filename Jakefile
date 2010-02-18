@@ -23,7 +23,12 @@ jake_hook :build_complete do |build|
       :uri         => "images/#{name}",
       :description => "<p>Description of #{name}.</p>",
       :width       => 360,
-      :height      => 500
+      :height      => 500,
+      :thumbnail   => {
+        :uri    => "images/thumbnails/#{name}",
+        :width  => 144,
+        :height => 200
+      }
     }
   end
   
