@@ -7,10 +7,8 @@ Arcadia is a full-width image gallery written in JavaScript.
 Todo
 ----
 
-* Add a more comprehensive suite of controls
-    - Thumbnails
-    - Play/pause
-* Tidy up some of the API
+* Fix offset/wrapping bug
+* Fix description display
 
 
 Dependencies

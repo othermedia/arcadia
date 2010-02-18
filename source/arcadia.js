@@ -134,24 +134,24 @@ Arcadia = new JS.Class('Arcadia', {
     
     next: function() {
         var next = this._current + 1;
-
+        
         if (next >= this._items.length) {
             next = 0;
         }
-
+        
         this.centreOn(next);
     },
-
+    
     previous: function() {
         var previous = this._current - 1;
-
+        
         if (previous < 0) {
             previous = this._items.length + previous;
         }
-
+        
         this.centreOn(previous);
     },
-
+    
     getHTML: function() {
         return this._viewport;
     },
@@ -264,7 +264,7 @@ Arcadia = new JS.Class('Arcadia', {
         }),
         
         Controls: {
-            Thumbnails: new JS.Class('Arcadia.Thumbnails', {
+            Thumbnails: new JS.Class('Arcadia.Controls.Thumbnails', {
                 initialize: function(gallery) {
                     this._gallery = gallery;
                     this._thumbs  = this._gallery.getThumbnails();
@@ -286,6 +286,54 @@ Arcadia = new JS.Class('Arcadia', {
                     // this._slider = new ScalingSlider(this._html, {
                     //     direction: 'horiztonal'
                     // });
+                    
+                    return this._html;
+                }
+            }),
+            
+            Play: new JS.Class('Arcadia.Controls.Play', {
+                initialize: function(gallery) {
+                    this._gallery = gallery;
+                    this._playing = false;
+                    this._timer   = null;
+                },
+                
+                play: function() {
+                    this._timer = setInterval(function() {
+                        this._gallery.next();
+                    }.bind(this), 3000);
+                    
+                    this._gallery.next();
+                    
+                    if (this._html) {
+                        this._html.replaceClass('paused', 'playing').setContent('Pause');
+                    }
+                    
+                    this._playing = true;
+                },
+                
+                pause: function() {
+                    clearInterval(this._timer);
+                    
+                    if (this._html) {
+                        this._html.replaceClass('playing', 'paused').setContent('Play');
+                    }
+                    
+                    this._playing = false;
+                },
+                
+                toggle: function() {
+                    this[this._playing ? 'pause' : 'play']();
+                },
+                
+                getHTML: function() {
+                    if (this._html) return this._html;
+                    
+                    this._html = Ojay(Ojay.HTML.div({
+                        className: 'play-button ' + (this._playing ? 'playing' : 'paused')
+                    }, (this._playing ? 'Pause' : 'Play')));
+                    
+                    this._html.on('click', this.toggle, this);
                     
                     return this._html;
                 }

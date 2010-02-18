@@ -25,18 +25,22 @@
     
     <script type="text/javascript">
     require('Ojay.HTTP', 'Arcadia', function() {
-        var json, gallery, thumbs;
         
         Ojay.HTTP.GET('images.json', {}, {
             onSuccess: function(response) {
-                json    = response.parseJSON();
-                gallery = new Arcadia('#gallery', json);
-                thumbs  = gallery.addControls(Arcadia.Controls.Thubmnails);
-                html    = thumbs.getHTML();
+                var json    = response.parseJSON(),
+                    gallery = new Arcadia('#gallery', json),
+                    
+                    thumbs  = gallery.addControls(Arcadia.Controls.Thubmnails),
+                    thtml   = thumbs.getHTML(),
+                    
+                    play    = gallery.addControls(Arcadia.Controls.Play),
+                    phtml   = play.getHTML();
                 
-                gallery.getHTML().insert(html, 'after');
+                gallery.getHTML().insert(thtml, 'after');
+                thtml.setStyle({height: '200px'});
                 
-                html.setStyle({height: '200px'});
+                gallery.getHTML().insert(phtml, 'after');
             }
         });
     });
