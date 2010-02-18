@@ -15,7 +15,7 @@ Arcadia = new JS.Class('Arcadia', {
             this._container.insert(item.getHTML(), 'bottom');
             
             item.getHTML().on('click', function() {
-                this.setPage(i);
+                this.centreOn(i);
             }, this);
             
             x += img.width;
@@ -43,7 +43,7 @@ Arcadia = new JS.Class('Arcadia', {
             left:     this.getOffset() + 'px'
         });
         
-        Ojay(window).on('resize', this.centre, this);
+        Ojay(window).on('resize', this.fitToViewport, this);
     },
     
     addControls: function(klass) {
@@ -56,7 +56,7 @@ Arcadia = new JS.Class('Arcadia', {
         });
     },
     
-    centre: function() {
+    fitToViewport: function() {
         this._container.setStyle({left: this.getOffset() + 'px'});
     },
     
@@ -118,7 +118,7 @@ Arcadia = new JS.Class('Arcadia', {
         }, 0);
     },
     
-    setPage: function(index) {
+    centreOn: function(index) {
         if (this._current === index) return;
         
         this.balance(index);
@@ -132,6 +132,26 @@ Arcadia = new JS.Class('Arcadia', {
         this._current = index;
     },
     
+    next: function() {
+        var next = this._current + 1;
+
+        if (next >= this._items.length) {
+            next = 0;
+        }
+
+        this.centreOn(next);
+    },
+
+    previous: function() {
+        var previous = this._current - 1;
+
+        if (previous < 0) {
+            previous = this._items.length + previous;
+        }
+
+        this.centreOn(previous);
+    },
+
     getHTML: function() {
         return this._viewport;
     },
@@ -259,7 +279,7 @@ Arcadia = new JS.Class('Arcadia', {
                         this._html.insert(thumb, 'bottom');
                         
                         thumb.on('click', function() {
-                            this._gallery.setPage(i);
+                            this._gallery.centreOn(i);
                         }, this);
                     }, this);
                     
