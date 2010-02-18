@@ -27,7 +27,7 @@ Arcadia = new JS.Class('Arcadia', {
             return item;
         }, this);
         
-        this._current = Math.floor(this._items.length / 2);
+        this._current = Math.floor((this._items.length - 1) / 2);
         this._left    = 0;
         
         this._viewport.setStyle({
@@ -63,27 +63,54 @@ Arcadia = new JS.Class('Arcadia', {
     balance: function(index) {
         var length, offset,
             oldLeft, newLeft, left,
-            splicees, s1, s2;
+            splicees, s1, s2,
+            shiftRight;
         
         length  = this._items.length;
         oldLeft = this._left;
         newLeft = (oldLeft + index - this._current) % length;
         
         if (newLeft < 0) {
-            s1       = this._items.slice(newLeft);
-            s2       = this._items.slice(0, oldLeft);
-            splicees = s1.concat(s2);
-            offset   = this.spliceLeft(splicees.reverse());
+            newLeft = length + newLeft;
+        }
+        
+        if (this._current > oldLeft) {
+            shiftRight = index > oldLeft && index < this._current;
         } else {
-            splicees = this._items.slice(oldLeft, newLeft);
-            offset   = this.spliceRight(splicees);
+            shiftRight = index > this._current && index < oldLeft;
+        }
+        
+        if (shiftRight) {
+            // In absolute terms, newLeft < oldLeft, but modulo the length of
+            // the items array it may not be.
+            if (newLeft > oldLeft) {
+                s1       = this._items.slice(newLeft);
+                s2       = this._items.slice(0, oldLeft);
+                splicees = s1.concat(s2);
+            } else {
+                splicees = this._items.slice(newLeft, oldLeft);
+            }
+            
+            offset = this.spliceLeft(splicees.reverse());
+        } else {
+            // In absolute terms, newLeft > oldLeft, but modulo the length of
+            // the items array it may not be.
+            if (newLeft < oldLeft) {
+                s1       = this._items.slice(oldLeft);
+                s2       = this._items.slice(0, newLeft);
+                splicees = s1.concat(s2);
+            } else {
+                splicees = this._items.slice(oldLeft, newLeft);
+            }
+            
+            offset = this.spliceRight(splicees);
         }
         
         this._container.setStyle({
             left: (this.getOffset() - offset) + 'px'
         });
         
-        this._left = newLeft < 0 ? length + newLeft : newLeft;
+        this._left = newLeft;
     },
     
     spliceRight: function(items) {
@@ -106,7 +133,8 @@ Arcadia = new JS.Class('Arcadia', {
         portWidth    = this._viewport.getWidth();
         itemsWidth   = this.getWidth();
         currentWidth = this._items[this._current].getWidth();
-        offset       = Math.floor((portWidth - currentWidth - itemsWidth) / 2);
+        // Dodgy assumption at play: all items have same width
+        offset       = Math.floor((portWidth + currentWidth - itemsWidth) / 2);
         
         return offset;
     },
