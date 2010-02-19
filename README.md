@@ -13,8 +13,6 @@ Todo
   centre is tightly-coupled and fragile).
 * Rename `this._current` in instances of the `Arcadia` object to `this._centre`
   to better reflect its nature.
-* Replace arguments named `index` with something more meaningful, such as
-  `centreOn`.
 * Add `Arcadia.Controls.Next` for next and previous buttons.
 
 

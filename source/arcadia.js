@@ -27,8 +27,8 @@ Arcadia = new JS.Class('Arcadia', {
             return item;
         }, this));
         
-        this._current = Math.floor((this._items.n() - 1) / 2);
-        this._left    = 0;
+        this._centre = Math.floor((this._items.n() - 1) / 2);
+        this._left   = 0;
         
         this._viewport.setStyle({
             position: 'relative',
@@ -64,12 +64,12 @@ Arcadia = new JS.Class('Arcadia', {
         var oldLeft, newLeft, splicees, shiftRight, offset;
         
         oldLeft = this._left;
-        newLeft = this._items.mod(oldLeft + centre - this._current);
+        newLeft = this._items.mod(oldLeft + centre - this._centre);
         
-        if (oldLeft > this._current) {
-            shiftRight = centre < this._current || centre >= oldLeft;
+        if (oldLeft > this._centre) {
+            shiftRight = centre < this._centre || centre >= oldLeft;
         } else {
-            shiftRight = centre < this._current && centre >= oldLeft;
+            shiftRight = centre < this._centre && centre >= oldLeft;
         }
         
         if (shiftRight) {
@@ -106,7 +106,7 @@ Arcadia = new JS.Class('Arcadia', {
         
         portWidth    = this._viewport.getWidth();
         itemsWidth   = this.getWidth();
-        currentWidth = this._items.at(this._current).getWidth();
+        currentWidth = this._items.at(this._centre).getWidth();
         // Dodgy assumption at play: all items have same width
         offset       = Math.floor((portWidth + currentWidth - itemsWidth) / 2);
         
@@ -120,7 +120,7 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     centreOn: function(centre) {
-        if (this._current === centre) return;
+        if (this._centre === centre) return;
         
         this.balance(centre);
         
@@ -130,15 +130,15 @@ Arcadia = new JS.Class('Arcadia', {
             }
         });
         
-        this._current = centre;
+        this._centre = centre;
     },
     
     next: function() {
-        this.centreOn(this._items.add(this._current, 1));
+        this.centreOn(this._items.add(this._centre, 1));
     },
     
     previous: function() {
-        this.centreOn(this._items.subtract(this._current, 1));
+        this.centreOn(this._items.subtract(this._centre, 1));
     },
     
     getHTML: function() {
