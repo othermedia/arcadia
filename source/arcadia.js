@@ -118,7 +118,7 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     centreOn: function(centre) {
-        if (centre === this._centre || centre === this._items[this._centre]) return;
+        if (centre === this._centre || centre === this._items.at(this._centre)) return;
         
         if (typeof centre !== 'number') {
             centre = this._items.indexOf(centre);
