@@ -118,7 +118,9 @@ Arcadia = new JS.Class('Arcadia', {
         portWidth    = this._viewport.getWidth();
         itemsWidth   = this.getWidth();
         currentWidth = this._items.at(this._centre).getWidth();
-        // Dodgy assumption at play: all items have same width
+        // Dodgy assumption at play: both sides have the same width. We do
+        // calculate the width dynamically, but the division by two contains
+        // the hidden assumption that both sides are of equal width.
         offset       = Math.floor((portWidth + currentWidth - itemsWidth) / 2);
         
         return offset;
