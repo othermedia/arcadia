@@ -37,6 +37,8 @@ Arcadia = new JS.Class('Arcadia', {
         this._centre = Math.floor((this._items.n() - 1) / 2);
         this._left   = 0;
         
+        this._addCurrentClassName();
+        
         this._viewport.setStyle({
             position: 'relative',
             height:   y + 'px'
@@ -136,6 +138,16 @@ Arcadia = new JS.Class('Arcadia', {
         return this._viewport;
     },
     
+    _addCurrentClassName: function() {
+        this.getCentre().getHTML().addClass('current');
+        return this;
+    },
+    
+    _removeCurrentClassName: function() {
+        this.getCentre().getHTML().removeClass('current');
+        return this;
+    },
+    
     states: {
         /**
          * In this state the gallery is able to accept user input.
@@ -153,12 +165,14 @@ Arcadia = new JS.Class('Arcadia', {
                 this.balance(centre);
                 
                 this.setState('ANIMATING');
+                this._removeCurrentClassName();
                 this._container.animate({
                     left: {
                         to: this.getOffset()
                     }
                 })
-                ._(this).setState('READY');
+                ._(this)._addCurrentClassName()
+                .setState('READY');
                 
                 this._centre = centre;
             },
@@ -269,62 +283,13 @@ Arcadia = new JS.Class('Arcadia', {
                     position: 'relative'
                 });
                 
-                this._descWrapper.setStyle({
-                    position: 'absolute',
-                    left:   0,
-                    bottom: 0,
-                    width:  this._spec.width + 'px'
-                });
-                
-                this._descMaxHeight = this._descWrapper.getHeight();
-                this._description.hide();
-                this._descMinHeight = this._descWrapper.getHeight();
-                this._descWrapper.setStyle({
-                    overflow: 'hidden',
-                    height:   this._descMinHeight + 'px'
-                });
-                this._description.show();
-                
-                this._descriptionCollapsed = true;
+                this._html.on('DOMNodeInserted', this._fixDescriptionHeight, this);
                 
                 this._descToggle.on('click', function(el, evnt) {
                     this[this._descriptionCollapsed ? 'expandDescription' : 'collapseDescription']();
                 }, this);
                 
                 return this._html;
-            },
-            
-            getWidth: function() {
-                return this._spec.width;
-            },
-            
-            hideDescription: function() {
-                this._descWrapper.hide();
-            },
-            
-            showDescription: function() {
-                this._descWrapper.show();
-            },
-            
-            collapseDescription: function() {
-                this._toggleDescription(this._descMaxHeight, this._descMinHeight, 'More');
-            },
-            
-            expandDescription: function() {
-                this._toggleDescription(this._descMinHeight, this._descMaxHeight, 'Close');
-            },
-            
-            _toggleDescription: function(startHeight, finishHeight, toggleText) {
-                this._descWrapper.animate({
-                    height: {
-                        from: startHeight,
-                        to:   finishHeight
-                    }
-                }, 0.3)
-                ._(this._descToggle).setContent(toggleText)
-                ._(function() {
-                    this._descriptionCollapsed = !this._descriptionCollapsed;
-                }.bind(this));
             },
             
             getThumbnail: function() {
@@ -343,6 +308,56 @@ Arcadia = new JS.Class('Arcadia', {
                 });
                 
                 return this._thumbnail;
+            },
+            
+            getWidth: function() {
+                return this._spec.width;
+            },
+            
+            collapseDescription: function() {
+                this._toggleDescription(this._descMaxHeight, this._descMinHeight, 'More');
+            },
+            
+            expandDescription: function() {
+                this._toggleDescription(this._descMinHeight, this._descMaxHeight, 'Close');
+            },
+            
+            _fixDescriptionHeight: function() {
+                if (this._descriptionHeightFixed) return;
+                
+                this._descWrapper.setStyle({display: 'block'});
+                
+                this._descMaxHeight = this._descWrapper.getHeight();
+                this._description.hide();
+                this._descMinHeight = this._descWrapper.getHeight();
+                
+                this._descWrapper.setStyle({
+                    position: 'absolute',
+                    left:     0,
+                    bottom:   0,
+                    width:    this._spec.width + 'px',
+                    height:   this._descMinHeight + 'px',
+                    overflow: 'hidden'
+                });
+                
+                this._description.show();
+                this._descWrapper.setStyle({display: ''});
+                
+                this._descriptionCollapsed   = true;
+                this._descriptionHeightFixed = true;
+            },
+            
+            _toggleDescription: function(startHeight, finishHeight, toggleText) {
+                this._descWrapper.animate({
+                    height: {
+                        from: startHeight,
+                        to:   finishHeight
+                    }
+                }, 0.3)
+                ._(this._descToggle).setContent(toggleText)
+                ._(function() {
+                    this._descriptionCollapsed = !this._descriptionCollapsed;
+                }.bind(this));
             }
         }),
         
