@@ -35,12 +35,17 @@
                     thtml   = thumbs.getHTML(),
                     
                     play    = gallery.addControls(Arcadia.Controls.Play),
-                    phtml   = play.getHTML();
+                    phtml   = play.getHTML(),
+                    
+                    next    = gallery.addControls(Arcadia.Controls.Next),
+                    nhtml   = next.getHTML();
                 
                 gallery.getHTML().insert(thtml, 'after');
                 thtml.setStyle({height: '200px'});
                 
                 gallery.getHTML().insert(phtml, 'after');
+                
+                gallery.getHTML().insert(nhtml, 'after');
             }
         });
     });

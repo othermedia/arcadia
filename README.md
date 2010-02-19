@@ -11,9 +11,6 @@ Todo
 * Allow `Items` to be arguments of `Arcadia#centreOn`. This would remove some
   accidental complexity (depending on array indices to determine which item to
   centre is tightly-coupled and fragile).
-* Rename `this._current` in instances of the `Arcadia` object to `this._centre`
-  to better reflect its nature.
-* Add `Arcadia.Controls.Next` for next and previous buttons.
 
 
 Dependencies

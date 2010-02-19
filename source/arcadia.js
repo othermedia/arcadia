@@ -378,6 +378,35 @@ Arcadia = new JS.Class('Arcadia', {
                     
                     return this._html;
                 }
+            }),
+            
+            Next: new JS.Class('Arcadia.Controls.Next', {
+                initialize: function(gallery) {
+                    this._gallery = gallery;
+                },
+                
+                previous: function() {
+                    this._gallery.previous();
+                },
+                
+                next: function() {
+                    this._gallery.next();
+                },
+                
+                getHTML: function() {
+                    if (this._html) return this._html;
+                    
+                    var self = this;
+                    self._html = Ojay(Ojay.HTML.div({className: 'arcadia-next-previous'}, function(H) {
+                        self._previous = Ojay(H.span({className: 'previous'}, 'Previous'));
+                        self._next     = Ojay(H.span({className: 'next'}, 'Next'));
+                    }));
+                    
+                    this._previous.on('click', this.previous, this);
+                    this._next.on('click', this.next, this);
+                    
+                    return this._html;
+                }
             })
         }
     }
