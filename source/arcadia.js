@@ -66,11 +66,10 @@ Arcadia = new JS.Class('Arcadia', {
         oldLeft = this._left;
         newLeft = this._items.mod(oldLeft + index - this._current);
         
-        // This block is broken
-        if (this._current > oldLeft) {
-            shiftRight = index > oldLeft && index < this._current;
+        if (oldLeft > this._current) {
+            shiftRight = index < this._current || index >= oldLeft;
         } else {
-            shiftRight = index > this._current && index < oldLeft;
+            shiftRight = index < this._current && index >= oldLeft;
         }
         
         if (shiftRight) {
