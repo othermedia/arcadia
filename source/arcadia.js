@@ -1,4 +1,11 @@
+/**
+ * Arcadia is a full-width image gallery with a variety of control types,
+ * including thumbnails, next and previous buttons, and a play/pause control to
+ * make the gallery rotate without further user input.
+ */
 Arcadia = new JS.Class('Arcadia', {
+    include: JS.State,
+    
     initialize: function(container, json) {
         var x = 0, y = 0;
         
@@ -44,6 +51,8 @@ Arcadia = new JS.Class('Arcadia', {
         });
         
         Ojay(window).on('resize', this.fitToViewport, this);
+        
+        this.setState('READY');
     },
     
     addControls: function(klass) {
@@ -117,36 +126,51 @@ Arcadia = new JS.Class('Arcadia', {
         }, 0);
     },
     
-    centreOn: function(centre) {
-        if (centre === this._centre || centre === this._items.at(this._centre)) return;
-        
-        if (typeof centre !== 'number') {
-            centre = this._items.indexOf(centre);
-            
-            if (centre < 0) return;
-        }
-        
-        this.balance(centre);
-        
-        this._container.animate({
-            left: {
-                to: this.getOffset()
-            }
-        });
-        
-        this._centre = centre;
-    },
-    
-    next: function() {
-        this.centreOn(this._items.add(this._centre, 1));
-    },
-    
-    previous: function() {
-        this.centreOn(this._items.subtract(this._centre, 1));
-    },
-    
     getHTML: function() {
         return this._viewport;
+    },
+    
+    states: {
+        /**
+         * In this state the gallery is able to accept user input.
+         */
+        READY: {
+            centreOn: function(centre) {
+                if (centre === this._centre || centre === this._items.at(this._centre)) return;
+                
+                if (typeof centre !== 'number') {
+                    centre = this._items.indexOf(centre);
+                    
+                    if (centre < 0) return;
+                }
+                
+                this.balance(centre);
+                
+                this.setState('ANIMATING');
+                this._container.animate({
+                    left: {
+                        to: this.getOffset()
+                    }
+                })
+                ._(this).setState('READY');
+                
+                this._centre = centre;
+            },
+            
+            next: function() {
+                this.centreOn(this._items.add(this._centre, 1));
+            },
+            
+            previous: function() {
+                this.centreOn(this._items.subtract(this._centre, 1));
+            }
+        },
+        
+        /**
+         * When the gallery is animating, it shouldn't respond to certain types
+         * of input, including
+         */
+        ANIMATING: {}
     },
     
     extend: {

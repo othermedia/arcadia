@@ -18,6 +18,7 @@ packages:
     meta:
       requires:
         - JS.Class
+        - JS.State
         - Ojay
         - Ojay.HTML
       provides:
