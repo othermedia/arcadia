@@ -9,13 +9,13 @@ Arcadia = new JS.Class('Arcadia', {
         ._(this._container).insert(this._viewport, 'after')
         ._(this._viewport).setContent(this._container);
         
-        this._items = new this.klass.ModNList(json.images.map(function(img, i) {
+        this._items = new this.klass.ModNList(json.images.map(function(img) {
             var item = new this.klass.Item(this, img);
             
             this._container.insert(item.getHTML(), 'bottom');
             
             item.getHTML().on('click', function() {
-                this.centreOn(i);
+                this.centreOn(item);
             }, this);
             
             x += img.width;
@@ -50,10 +50,8 @@ Arcadia = new JS.Class('Arcadia', {
         return new (klass || this.klass.Controls.Thumbnails)(this);
     },
     
-    getThumbnails: function() {
-        return this._items.map(function(item) {
-            return item.getThumbnail();
-        });
+    getItems: function() {
+        return this._items;
     },
     
     fitToViewport: function() {
@@ -120,7 +118,13 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     centreOn: function(centre) {
-        if (this._centre === centre) return;
+        if (centre === this._centre || centre === this._items[this._centre]) return;
+        
+        if (typeof centre !== 'number') {
+            centre = this._items.indexOf(centre);
+            
+            if (centre < 0) return;
+        }
         
         this.balance(centre);
         
@@ -172,6 +176,10 @@ Arcadia = new JS.Class('Arcadia', {
                 return this.mod(a - b);
             },
             
+            indexOf: function(element, from) {
+                return this._store.indexOf(element, from);
+            },
+            
             slice: function(start, end) {
                 var s1, s2, sliced;
                 
@@ -187,6 +195,10 @@ Arcadia = new JS.Class('Arcadia', {
                 }
                 
                 return sliced;
+            },
+            
+            forEach: function(block, context) {
+                return this._store.forEach(block, context);
             },
             
             map: function(block, context) {
@@ -308,19 +320,20 @@ Arcadia = new JS.Class('Arcadia', {
             Thumbnails: new JS.Class('Arcadia.Controls.Thumbnails', {
                 initialize: function(gallery) {
                     this._gallery = gallery;
-                    this._thumbs  = this._gallery.getThumbnails();
                 },
                 
                 getHTML: function() {
                     if (this._html) return this._html;
                     
-                    this._html = Ojay(Ojay.HTML.div({className: 'thumbnails'}));
+                    this._html = Ojay(Ojay.HTML.div({className: 'arcadia-thumbnails'}));
                     
-                    this._thumbs.forEach(function(thumb, i) {
+                    this._gallery.getItems().forEach(function(item) {
+                        var thumb = item.getThumbnail();
+                        
                         this._html.insert(thumb, 'bottom');
                         
                         thumb.on('click', function() {
-                            this._gallery.centreOn(i);
+                            this._gallery.centreOn(item);
                         }, this);
                     }, this);
                     

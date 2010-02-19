@@ -8,9 +8,6 @@ Todo
 ----
 
 * Fix description display
-* Allow `Items` to be arguments of `Arcadia#centreOn`. This would remove some
-  accidental complexity (depending on array indices to determine which item to
-  centre is tightly-coupled and fragile).
 
 
 Dependencies
