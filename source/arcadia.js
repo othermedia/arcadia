@@ -60,16 +60,16 @@ Arcadia = new JS.Class('Arcadia', {
         this._container.setStyle({left: this.getOffset() + 'px'});
     },
     
-    balance: function(index) {
+    balance: function(centre) {
         var oldLeft, newLeft, splicees, shiftRight, offset;
         
         oldLeft = this._left;
-        newLeft = this._items.mod(oldLeft + index - this._current);
+        newLeft = this._items.mod(oldLeft + centre - this._current);
         
         if (oldLeft > this._current) {
-            shiftRight = index < this._current || index >= oldLeft;
+            shiftRight = centre < this._current || centre >= oldLeft;
         } else {
-            shiftRight = index < this._current && index >= oldLeft;
+            shiftRight = centre < this._current && centre >= oldLeft;
         }
         
         if (shiftRight) {
@@ -119,10 +119,10 @@ Arcadia = new JS.Class('Arcadia', {
         }, 0);
     },
     
-    centreOn: function(index) {
-        if (this._current === index) return;
+    centreOn: function(centre) {
+        if (this._current === centre) return;
         
-        this.balance(index);
+        this.balance(centre);
         
         this._container.animate({
             left: {
@@ -130,7 +130,7 @@ Arcadia = new JS.Class('Arcadia', {
             }
         });
         
-        this._current = index;
+        this._current = centre;
     },
     
     next: function() {
