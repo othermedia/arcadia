@@ -63,6 +63,10 @@ Arcadia = new JS.Class('Arcadia', {
         return this._items;
     },
     
+    getCentre: function() {
+        return this._items.at(this._centre);
+    },
+    
     fitToViewport: function() {
         this._container.setStyle({left: this.getOffset() + 'px'});
     },
@@ -408,7 +412,7 @@ Arcadia = new JS.Class('Arcadia', {
                     if (this._html) return this._html;
                     
                     this._html = Ojay(Ojay.HTML.div({
-                        className: 'play-button ' + (this._playing ? 'playing' : 'paused')
+                        className: 'arcadia-play-button ' + (this._playing ? 'playing' : 'paused')
                     }, (this._playing ? 'Pause' : 'Play')));
                     
                     this._html.on('click', this.toggle, this);
@@ -443,6 +447,18 @@ Arcadia = new JS.Class('Arcadia', {
                     this._next.on('click', this.next, this);
                     
                     return this._html;
+                },
+                
+                getPrevious: function() {
+                    return this._previous;
+                },
+                
+                getNext: function() {
+                    return this._next;
+                },
+                
+                getGallery: function() {
+                    return this._gallery;
                 }
             })
         }

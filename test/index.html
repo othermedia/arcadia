@@ -18,6 +18,9 @@
         .item {float:left;}
         .clear:after {}
         .thumbnail {float:left;}
+        .arcadia-play-button, .arcadia-next-previous span {position:absolute; padding:10px; border:1px solid #fff; background:#000; color:#fff; cursor:pointer;}
+        .arcadia-play-button {position:absolute; bottom:50px; left:50px;}
+        .arcadia-next-previous span {top:240px;}
     </style>
 </head><body>
     
@@ -28,6 +31,17 @@
         
         Ojay.HTTP.GET('images.json', {}, {
             onSuccess: function(response) {
+                Arcadia.Controls.Next.define('reposition', function() {
+                    var next    = this.getNext(),
+                        prev    = this.getPrevious(),
+                        gallery = this.getGallery(),
+                        offset  = gallery.getCentre().getWidth(),
+                        centre  = (gallery.getHTML().getWidth() + offset) / 2;
+                    
+                    prev.setStyle({right: Math.ceil(centre) + 'px'});
+                    next.setStyle({left: Math.floor(centre) + 'px'});
+                });
+                
                 var json    = response.parseJSON(),
                     gallery = new Arcadia('#gallery', json),
                     
@@ -43,9 +57,11 @@
                 gallery.getHTML().insert(thtml, 'after');
                 thtml.setStyle({height: '200px'});
                 
-                gallery.getHTML().insert(phtml, 'after');
+                gallery.getHTML().insert(phtml, 'bottom');
                 
-                gallery.getHTML().insert(nhtml, 'after');
+                gallery.getHTML().insert(nhtml, 'bottom');
+                next.reposition();
+                Ojay(window).on('resize', next.reposition, next);
             }
         });
     });
