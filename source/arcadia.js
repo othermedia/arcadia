@@ -9,7 +9,7 @@ Arcadia = new JS.Class('Arcadia', {
         ._(this._container).insert(this._viewport, 'after')
         ._(this._viewport).setContent(this._container);
         
-        this._items = json.images.map(function(img, i) {
+        this._items = new this.klass.ModNList(json.images.map(function(img, i) {
             var item = new this.klass.Item(this, img);
             
             this._container.insert(item.getHTML(), 'bottom');
@@ -25,9 +25,9 @@ Arcadia = new JS.Class('Arcadia', {
             }
             
             return item;
-        }, this);
+        }, this));
         
-        this._current = Math.floor((this._items.length - 1) / 2);
+        this._current = Math.floor((this._items.n() - 1) / 2);
         this._left    = 0;
         
         this._viewport.setStyle({
@@ -61,19 +61,12 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     balance: function(index) {
-        var length, offset,
-            oldLeft, newLeft, left,
-            splicees, s1, s2,
-            shiftRight;
+        var oldLeft, newLeft, splicees, shiftRight, offset;
         
-        length  = this._items.length;
         oldLeft = this._left;
-        newLeft = (oldLeft + index - this._current) % length;
+        newLeft = this._items.mod(oldLeft + index - this._current);
         
-        if (newLeft < 0) {
-            newLeft = length + newLeft;
-        }
-        
+        // This block is broken
         if (this._current > oldLeft) {
             shiftRight = index > oldLeft && index < this._current;
         } else {
@@ -81,29 +74,11 @@ Arcadia = new JS.Class('Arcadia', {
         }
         
         if (shiftRight) {
-            // In absolute terms, newLeft < oldLeft, but modulo the length of
-            // the items array it may not be.
-            if (newLeft > oldLeft) {
-                s1       = this._items.slice(newLeft);
-                s2       = this._items.slice(0, oldLeft);
-                splicees = s1.concat(s2);
-            } else {
-                splicees = this._items.slice(newLeft, oldLeft);
-            }
-            
-            offset = this.spliceLeft(splicees.reverse());
+            splicees = this._items.slice(newLeft, oldLeft);
+            offset   = this.spliceLeft(splicees.reverse());
         } else {
-            // In absolute terms, newLeft > oldLeft, but modulo the length of
-            // the items array it may not be.
-            if (newLeft < oldLeft) {
-                s1       = this._items.slice(oldLeft);
-                s2       = this._items.slice(0, newLeft);
-                splicees = s1.concat(s2);
-            } else {
-                splicees = this._items.slice(oldLeft, newLeft);
-            }
-            
-            offset = this.spliceRight(splicees);
+            splicees = this._items.slice(oldLeft, newLeft);
+            offset   = this.spliceRight(splicees);
         }
         
         this._container.setStyle({
@@ -132,7 +107,7 @@ Arcadia = new JS.Class('Arcadia', {
         
         portWidth    = this._viewport.getWidth();
         itemsWidth   = this.getWidth();
-        currentWidth = this._items[this._current].getWidth();
+        currentWidth = this._items.at(this._current).getWidth();
         // Dodgy assumption at play: all items have same width
         offset       = Math.floor((portWidth + currentWidth - itemsWidth) / 2);
         
@@ -160,23 +135,11 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     next: function() {
-        var next = this._current + 1;
-        
-        if (next >= this._items.length) {
-            next = 0;
-        }
-        
-        this.centreOn(next);
+        this.centreOn(this._items.add(this._current, 1));
     },
     
     previous: function() {
-        var previous = this._current - 1;
-        
-        if (previous < 0) {
-            previous = this._items.length + previous;
-        }
-        
-        this.centreOn(previous);
+        this.centreOn(this._items.subtract(this._current, 1));
     },
     
     getHTML: function() {
@@ -184,6 +147,58 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     extend: {
+        ModNList: new JS.Class('ModNList', {
+            initialize: function(items) {
+                this._store = items || [];
+            },
+            
+            n: function() {
+                return this._store.length;
+            },
+            
+            at: function(i) {
+                return this._store[this.mod(i)];
+            },
+            
+            mod: function(a) {
+                var n = this._store.length, m = a % n;
+                return m < 0 ? n + m : m;
+            },
+            
+            add: function(a, b) {
+                return this.mod(a + b);
+            },
+            
+            subtract: function(a, b) {
+                return this.mod(a - b);
+            },
+            
+            slice: function(start, end) {
+                var s1, s2, sliced;
+                
+                start = this.mod(start);
+                end   = this.mod(end);
+                
+                if (start > end) {
+                    s1     = this._store.slice(start);
+                    s2     = this._store.slice(0, end);
+                    sliced = s1.concat(s2);
+                } else {
+                    sliced = this._store.slice(start, end);
+                }
+                
+                return sliced;
+            },
+            
+            map: function(block, context) {
+                return this._store.map(block, context);
+            },
+            
+            reduce: function(block, context) {
+                return this._store.reduce(block, context);
+            }
+        }),
+        
         Item: new JS.Class({
             initialize: function(gallery, spec) {
                 this._gallery = gallery;

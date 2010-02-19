@@ -22,3 +22,7 @@ packages:
         - Ojay.HTML
       provides:
         - Arcadia
+        - Arcadia.ModNList
+        - Arcadia.Controls
+        - Arcadia.Controls.Thumbnails
+        - Arcadia.Controls.Play
