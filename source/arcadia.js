@@ -119,7 +119,7 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     getOffset: function() {
-        var portWidth, itemsWidth, currentWidth, offset;
+        var portWidth, leftWidth, currentWidth, offset;
         
         portWidth    = this._viewport.getWidth();
         leftWidth    = this.getLeftWidth();
