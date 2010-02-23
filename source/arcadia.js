@@ -77,7 +77,7 @@ Arcadia = new JS.Class('Arcadia', {
         this._container.setStyle({left: this.getOffset() + 'px'});
     },
     
-    balance: function(centre) {
+    _balance: function(centre) {
         var oldLeft, newLeft, splicees, shiftRight, offset;
         
         oldLeft = this._left;
@@ -91,10 +91,10 @@ Arcadia = new JS.Class('Arcadia', {
         
         if (shiftRight) {
             splicees = this._items.slice(newLeft, oldLeft);
-            offset   = this.spliceLeft(splicees.reverse());
+            offset   = this._spliceLeft(splicees.reverse());
         } else {
             splicees = this._items.slice(oldLeft, newLeft);
-            offset   = this.spliceRight(splicees);
+            offset   = this._spliceRight(splicees);
         }
         
         this._container.setStyle({
@@ -104,14 +104,14 @@ Arcadia = new JS.Class('Arcadia', {
         this._left = newLeft;
     },
     
-    spliceRight: function(items) {
+    _spliceRight: function(items) {
         return items.reduce(function(offset, item) {
             this._container.insert(item.getHTML(), 'bottom');
             return offset - item.getWidth();
         }.bind(this), 0);
     },
     
-    spliceLeft: function(items) {
+    _spliceLeft: function(items) {
         return items.reduce(function(offset, item) {
             this._container.insert(item.getHTML(), 'top');
             return offset + item.getWidth();
@@ -144,7 +144,8 @@ Arcadia = new JS.Class('Arcadia', {
     
     states: {
         /**
-         * In this state the gallery is able to accept user input.
+         * In this state the gallery is able to accept user input and change
+         * which item is centred.
          */
         READY: {
             centreOn: function(centre) {
@@ -156,7 +157,7 @@ Arcadia = new JS.Class('Arcadia', {
                     if (centre < 0) return;
                 }
                 
-                this.balance(centre);
+                this._balance(centre);
                 
                 this.setState('ANIMATING');
                 this.getCentre().hide();
@@ -181,8 +182,9 @@ Arcadia = new JS.Class('Arcadia', {
         },
         
         /**
-         * When the gallery is animating, it shouldn't respond to certain types
-         * of input, including
+         * When the gallery is animating, it shouldn't respond only to
+         * informational requests, i.e. ones that don't affect the state of the
+         * gallery.
          */
         ANIMATING: {}
     },
