@@ -16,8 +16,17 @@ Arcadia = new JS.Class('Arcadia', {
         ._(this._container).insert(this._viewport, 'after')
         ._(this._viewport).setContent(this._container);
         
-        this._items = new this.klass.ModNList(json.images.map(function(img) {
+        this._centre = Math.floor((json.images.length - 1) / 2);
+        this._left   = 0;
+        
+        this._items = new this.klass.ModNList(json.images.map(function(img, i) {
             var item = new this.klass.Item(this, img);
+            
+            if (i !== this._centre) {
+                item.on('ready', function() {
+                    item.hide({animate: false});
+                });
+            }
             
             this._container.insert(item.getHTML(), 'bottom');
             
@@ -33,11 +42,6 @@ Arcadia = new JS.Class('Arcadia', {
             
             return item;
         }, this));
-        
-        this._centre = Math.floor((this._items.n() - 1) / 2);
-        this._left   = 0;
-        
-        this._addCurrentClassName();
         
         this._viewport.setStyle({
             position: 'relative',
@@ -138,16 +142,6 @@ Arcadia = new JS.Class('Arcadia', {
         return this._viewport;
     },
     
-    _addCurrentClassName: function() {
-        this.getCentre().getHTML().addClass('current');
-        return this;
-    },
-    
-    _removeCurrentClassName: function() {
-        this.getCentre().getHTML().removeClass('current');
-        return this;
-    },
-    
     states: {
         /**
          * In this state the gallery is able to accept user input.
@@ -165,14 +159,14 @@ Arcadia = new JS.Class('Arcadia', {
                 this.balance(centre);
                 
                 this.setState('ANIMATING');
-                this._removeCurrentClassName();
+                this.getCentre().hide();
                 this._container.animate({
                     left: {
                         to: this.getOffset()
                     }
                 })
-                ._(this)._addCurrentClassName()
-                .setState('READY');
+                ._(this._items.at(centre)).show()
+                ._(this).setState('READY');
                 
                 this._centre = centre;
             },
@@ -255,6 +249,8 @@ Arcadia = new JS.Class('Arcadia', {
         }),
         
         Item: new JS.Class({
+            include: Ojay.Observable,
+            
             initialize: function(gallery, spec) {
                 this._gallery = gallery;
                 this._spec    = spec;
@@ -283,7 +279,7 @@ Arcadia = new JS.Class('Arcadia', {
                     position: 'relative'
                 });
                 
-                this._html.on('DOMNodeInserted', this._setupDescription, this);
+                this._html.on('DOMNodeInserted', this.setup, this);
                 
                 return this._html;
             },
@@ -318,7 +314,41 @@ Arcadia = new JS.Class('Arcadia', {
                 this._toggleDescription(this._descMinHeight, this._descMaxHeight, 'Close');
             },
             
-            _setupDescription: function() {
+            show: function(options) {
+                options = options || {};
+                
+                this.getHTML().addClass('current');
+                
+                if (options.animate !== false) {
+                    this._descWrapper.show().animate({
+                        opacity: {
+                            from: 0,
+                            to:   1
+                        }
+                    }, 0.4);
+                } else {
+                    this._descWrapper.setStyle({opacity: 1}).show();
+                }
+            },
+            
+            hide: function(options) {
+                options = options || {};
+                
+                this.getHTML().removeClass('current');
+                
+                if (options.animate !== false) {
+                    this._descWrapper.animate({
+                        opacity: {
+                            from: 1,
+                            to:   0
+                        }
+                    }, 0.4).hide();
+                } else {
+                    this._descWrapper.setStyle({opacity: 0}).hide();
+                }
+            },
+            
+            setup: function() {
                 if (this._descriptionHeightFixed) return;
                 
                 setTimeout(function() {
@@ -343,6 +373,8 @@ Arcadia = new JS.Class('Arcadia', {
                     this._descToggle.on('click', function(el, evnt) {
                         this[this._descriptionCollapsed ? 'expandDescription' : 'collapseDescription']();
                     }, this);
+                    
+                    this.notifyObservers('ready', this);
                 }.bind(this), 10);
             },
             
