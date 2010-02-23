@@ -25,13 +25,16 @@
         .arcadia-play-button, .arcadia-next-previous span {position:absolute; padding:10px; border:1px solid #fff; background:#000; color:#fff; cursor:pointer; font-family:'Times New Roman', Times, serif; font-size:18px; font-style:italic;}
         .arcadia-play-button {position:absolute; bottom:50px; left:50px;}
         .arcadia-next-previous span {top:240px;}
+        #thumbnails {height:215px; overflow-x:scroll; overflow-y:hidden;}
     </style>
 </head><body>
     
     <div id="gallery"></div>
     
+    <div id="thumbnails"></div>
+    
     <script type="text/javascript">
-    require('Ojay.HTTP', 'Arcadia', function() {
+    require('Ojay', 'Ojay.HTTP', 'Arcadia', function() {
         
         Ojay.HTTP.GET('images.json', {}, {
             onSuccess: function(response) {
@@ -58,8 +61,9 @@
                     next    = gallery.addControls(Arcadia.Controls.Next),
                     nhtml   = next.getHTML();
                 
-                gallery.getHTML().insert(thtml, 'after');
-                thtml.setStyle({height: '200px'});
+                Ojay('#thumbnails').insert(thtml);
+                var twidth = thtml.children('.thumbnail').reduce(function(w, t) { return w + t.getWidth(); }, 0);
+                thtml.setStyle({height: '200px', width: twidth + 'px'});
                 
                 gallery.getHTML().insert(phtml, 'bottom');
                 
