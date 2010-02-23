@@ -122,18 +122,15 @@ Arcadia = new JS.Class('Arcadia', {
         var portWidth, itemsWidth, currentWidth, offset;
         
         portWidth    = this._viewport.getWidth();
-        itemsWidth   = this.getWidth();
+        leftWidth    = this.getLeftWidth();
         currentWidth = this._items.at(this._centre).getWidth();
-        // Dodgy assumption at play: both sides have the same width. We do
-        // calculate the width dynamically, but the division by two contains
-        // the hidden assumption that both sides are of equal width.
-        offset       = Math.floor((portWidth + currentWidth - itemsWidth) / 2);
+        offset       = Math.floor(((portWidth - currentWidth) / 2) - leftWidth);
         
         return offset;
     },
     
-    getWidth: function() {
-        return this._items.reduce(function(width, item) {
+    getLeftWidth: function() {
+        return this._items.slice(this._left, this._centre).reduce(function(width, item) {
             return width + item.getWidth();
         }, 0);
     },
@@ -157,10 +154,12 @@ Arcadia = new JS.Class('Arcadia', {
                     if (centre < 0) return;
                 }
                 
-                this._balance(centre);
-                
                 this.setState('ANIMATING');
+                
+                this._balance(centre);
                 this.getCentre().hide();
+                this._centre = centre;
+                
                 this._container.animate({
                     left: {
                         to: this.getOffset()
@@ -168,8 +167,6 @@ Arcadia = new JS.Class('Arcadia', {
                 })
                 ._(this._items.at(centre)).show()
                 ._(this).setState('READY');
-                
-                this._centre = centre;
             },
             
             next: function() {
