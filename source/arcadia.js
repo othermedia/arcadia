@@ -283,11 +283,7 @@ Arcadia = new JS.Class('Arcadia', {
                     position: 'relative'
                 });
                 
-                this._html.on('DOMNodeInserted', this._fixDescriptionHeight, this);
-                
-                this._descToggle.on('click', function(el, evnt) {
-                    this[this._descriptionCollapsed ? 'expandDescription' : 'collapseDescription']();
-                }, this);
+                this._html.on('DOMNodeInserted', this._setupDescription, this);
                 
                 return this._html;
             },
@@ -322,29 +318,32 @@ Arcadia = new JS.Class('Arcadia', {
                 this._toggleDescription(this._descMinHeight, this._descMaxHeight, 'Close');
             },
             
-            _fixDescriptionHeight: function() {
+            _setupDescription: function() {
                 if (this._descriptionHeightFixed) return;
                 
-                this._descWrapper.setStyle({display: 'block'});
-                
-                this._descMaxHeight = this._descWrapper.getHeight();
-                this._description.hide();
-                this._descMinHeight = this._descWrapper.getHeight();
-                
-                this._descWrapper.setStyle({
-                    position: 'absolute',
-                    left:     0,
-                    bottom:   0,
-                    width:    this._spec.width + 'px',
-                    height:   this._descMinHeight + 'px',
-                    overflow: 'hidden'
-                });
-                
-                this._description.show();
-                this._descWrapper.setStyle({display: ''});
-                
-                this._descriptionCollapsed   = true;
-                this._descriptionHeightFixed = true;
+                setTimeout(function() {
+                    this._descMaxHeight = this._descWrapper.getHeight();
+                    this._description.hide();
+                    this._descMinHeight = this._descWrapper.getHeight();
+                    
+                    this._descWrapper.setStyle({
+                        position: 'absolute',
+                        left:     0,
+                        bottom:   0,
+                        width:    this._spec.width + 'px',
+                        height:   this._descMinHeight + 'px',
+                        overflow: 'hidden'
+                    });
+                    
+                    this._description.show();
+                    
+                    this._descriptionCollapsed   = true;
+                    this._descriptionHeightFixed = true;
+                    
+                    this._descToggle.on('click', function(el, evnt) {
+                        this[this._descriptionCollapsed ? 'expandDescription' : 'collapseDescription']();
+                    }, this);
+                }.bind(this), 10);
             },
             
             _toggleDescription: function(startHeight, finishHeight, toggleText) {
