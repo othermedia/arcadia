@@ -263,6 +263,11 @@ Arcadia = new JS.Class('Arcadia', {
         Item: new JS.Class({
             include: Ojay.Observable,
             
+            extend: {
+                OPEN_TEXT:   'Collapse',
+                CLOSED_TEXT: 'Expand'
+            },
+            
             initialize: function(gallery, spec) {
                 this._gallery = gallery;
                 this._spec    = spec;
@@ -279,7 +284,7 @@ Arcadia = new JS.Class('Arcadia', {
                     }));
                     
                     self._descWrapper = Ojay(H.div({className: 'description-wrapper'}, function(W) {
-                        self._descToggle  = Ojay(W.div({className: 'description-toggle'}, 'More'));
+                        self._descToggle  = Ojay(W.div({className: 'description-toggle'}, this.klass.CLOSED_TEXT));
                         self._description = Ojay(W.div({className: 'description'}, self._spec.description));
                     }));
                 }));
@@ -319,11 +324,11 @@ Arcadia = new JS.Class('Arcadia', {
             },
             
             collapseDescription: function() {
-                this._toggleDescription(this._descMaxHeight, this._descMinHeight, 'More');
+                this._toggleDescription(this._descMaxHeight, this._descMinHeight, this.klass.CLOSED_TEXT);
             },
             
             expandDescription: function() {
-                this._toggleDescription(this._descMinHeight, this._descMaxHeight, 'Close');
+                this._toggleDescription(this._descMinHeight, this._descMaxHeight, this.klass.OPEN_TEXT);
             },
             
             show: function(options) {
