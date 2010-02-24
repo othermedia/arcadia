@@ -4,7 +4,7 @@
  * make the gallery rotate without further user input.
  */
 Arcadia = new JS.Class('Arcadia', {
-    include: JS.State,
+    include: [JS.State, Ojay.Observable],
     
     initialize: function(container, json) {
         var x = 0, y = 0;
@@ -162,7 +162,8 @@ Arcadia = new JS.Class('Arcadia', {
                     }
                 })
                 ._(this._items.at(centre)).show()
-                ._(this).setState('READY');
+                ._(this).setState('READY')
+                ._(this).notifyObservers('centre', this.getCentre());
             },
             
             next: function() {
