@@ -73,10 +73,6 @@ Arcadia = new JS.Class('Arcadia', {
         return this._items.at(this._centre);
     },
     
-    fitToViewport: function() {
-        this._container.setStyle({left: this.getOffset() + 'px'});
-    },
-    
     _balance: function(centre) {
         var oldLeft, newLeft, splicees, shiftRight, offset;
         
@@ -175,13 +171,16 @@ Arcadia = new JS.Class('Arcadia', {
             
             previous: function() {
                 this.centreOn(this._items.subtract(this._centre, 1));
+            },
+            
+            fitToViewport: function() {
+                this._container.setStyle({left: this.getOffset() + 'px'});
             }
         },
         
         /**
-         * When the gallery is animating, it shouldn't respond only to
-         * informational requests, i.e. ones that don't affect the state of the
-         * gallery.
+         * When the gallery is animating, it should respond only to requests
+         * that don't affect the state of the gallery.
          */
         ANIMATING: {}
     },
