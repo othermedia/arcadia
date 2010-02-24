@@ -8,6 +8,8 @@ Todo
 ----
 
 * Stop timed rotations when any other control is clicked.
+* Resizing the window while the gallery is animating can result in the test
+  controls being incorrectly repositioned.
 
 
 Dependencies
