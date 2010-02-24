@@ -143,10 +143,6 @@ Arcadia = new JS.Class('Arcadia', {
         return this._viewport;
     },
     
-    getContainer: function() {
-        return this._container;
-    },
-    
     states: {
         /**
          * In this state the gallery is able to accept user input and change
