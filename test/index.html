@@ -34,25 +34,58 @@
     
     <script type="text/javascript">
     require('Ojay', 'Ojay.HTTP', 'Arcadia', function() {
+        Arcadia.Controls.Next.include({
+            hide: function(centre) {
+                this.getHTML().animate({
+                    opacity: {
+                        from: 1,
+                        to:   0
+                    }
+                }, 0.3).hide();
+            },
+            
+            show: function(centre) {
+                this.reposition();
+                
+                this.getHTML().show().animate({
+                    opacity: {
+                        from: 0,
+                        to:   1
+                    }
+                }, 0.3);
+            },
+            
+            reposition: function(centre) {
+                var next    = this.getNext(),
+                    prev    = this.getPrevious(),
+                    gallery = this.getGallery(),
+                    html, width, left, right;
+                
+                // Don't reposition controls during animation
+                if (!gallery.inState('READY')) return;
+                
+                if (typeof centre !== 'object' || !centre.isA(Arcadia.Item)) {
+                    centre = gallery.getCentre();
+                }
+                
+                html  = centre.getHTML();
+                width = html.getWidth();
+                left  = html.getLeft();
+                right = html.getRight();
+                
+                prev.setStyle({right: right + 'px'});
+                next.setStyle({left: (left + width) + 'px'});
+            }
+        });
         
         Ojay.HTTP.GET('images.json', {}, {
             onSuccess: function(response) {
-                Arcadia.Controls.Next.define('reposition', function() {
-                    var next    = this.getNext(),
-                        prev    = this.getPrevious(),
-                        gallery = this.getGallery(),
-                        offset  = gallery.getCentre().getWidth(),
-                        centre  = (gallery.getHTML().getWidth() + offset) / 2;
-                    
-                    prev.setStyle({right: Math.ceil(centre) + 'px'});
-                    next.setStyle({left: Math.floor(centre) + 'px'});
-                });
-                
                 var json    = response.parseJSON(),
                     gallery = new Arcadia('#gallery', json),
                     
                     thumbs  = gallery.addControls(Arcadia.Controls.Thubmnails),
                     thtml   = thumbs.getHTML(),
+                    twidth,
                     
                     play    = gallery.addControls(Arcadia.Controls.Play),
                     phtml   = play.getHTML(),
@@ -60,15 +93,18 @@
                     next    = gallery.addControls(Arcadia.Controls.Next),
                     nhtml   = next.getHTML();
                 
+                Ojay(window).on('resize', next.reposition, next);
+                gallery.on('centreStart', next.hide, next);
+                gallery.on('centreEnd', next.show, next);
+                
                 Ojay('#thumbnails').insert(thtml);
-                var twidth = thtml.children('.thumbnail').reduce(function(w, t) { return w + t.getWidth(); }, 0);
+                twidth = thtml.children('.thumbnail').reduce(function(w, t) { return w + t.getWidth(); }, 0);
                 thtml.setStyle({height: '200px', width: twidth + 'px'});
                 
                 gallery.getHTML().insert(phtml, 'bottom');
-                
                 gallery.getHTML().insert(nhtml, 'bottom');
+                
                 next.reposition();
-                Ojay(window).on('resize', next.reposition, next);
             }
         });
     });
