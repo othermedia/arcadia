@@ -125,12 +125,20 @@ Arcadia = new JS.Class('Arcadia', {
         return offset;
     },
     
-    getLeftWidth: function() {
-        return this._items.slice(this._left, this._centre).reduce(function(width, item) {
+    getWidth: function(start, end) {
+        return this._items.slice(start || 0, end).reduce(function(width, item) {
             return width + item.getWidth();
         }, 0);
     },
     
+    getLeftWidth: function() {
+        return this.getWidth(this._left, this._centre);
+    },
+
+    getRightWidth: function() {
+        return this.getWidth(this._centre + 1, this._left);
+    },
+
     getHTML: function() {
         return this._viewport;
     },
@@ -222,8 +230,10 @@ Arcadia = new JS.Class('Arcadia', {
             slice: function(start, end) {
                 var s1, s2, sliced;
                 
+                if (!(start || end)) return this._store;
+
                 start = this.mod(start);
-                end   = this.mod(end);
+                end   = typeof end === 'number' && end !== this.n() ? this.mod(end) : this.n();
                 
                 if (start > end) {
                     s1     = this._store.slice(start);
