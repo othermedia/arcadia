@@ -95,7 +95,7 @@
                 
                 Ojay(window).on('resize', next.reposition, next);
                 gallery.on('centreStart', next.hide, next);
-                gallery.on('centreEnd', next.show, next);
+                gallery.on('centre', next.show, next);
                 
                 Ojay('#thumbnails').insert(thtml);
                 twidth = thtml.children('.thumbnail').reduce(function(w, t) { return w + t.getWidth(); }, 0);

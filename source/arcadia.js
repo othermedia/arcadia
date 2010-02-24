@@ -163,6 +163,7 @@ Arcadia = new JS.Class('Arcadia', {
                 
                 this._balance(centre);
                 this.getCentre().hide();
+                
                 this._centre = centre;
                 
                 this._container.animate({
@@ -170,10 +171,10 @@ Arcadia = new JS.Class('Arcadia', {
                         to: this.getOffset()
                     }
                 }, 0.8)
-                ._(this._items.at(centre)).show()
                 ._(this).setState('READY')
-                ._(this).notifyObservers('centreEnd', this.getCentre())
-                ._(this).notifyObservers('centre', this.getCentre());
+                ._(this).notifyObservers('centre', this.getCentre())
+                ._(this.getCentre()).show()
+                ._(this).notifyObservers('centreEnd', this.getCentre());
             },
             
             next: function() {
