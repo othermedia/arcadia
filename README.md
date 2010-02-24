@@ -8,7 +8,6 @@ Todo
 ----
 
 * Stop timed rotations when any other control is clicked.
-* Add slider support to the thumbnail area.
 
 
 Dependencies

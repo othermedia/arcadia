@@ -414,10 +414,6 @@ Arcadia = new JS.Class('Arcadia', {
                         }, this);
                     }, this);
                     
-                    // this._slider = new ScalingSlider(this._html, {
-                    //     direction: 'horiztonal'
-                    // });
-                    
                     return this._html;
                 }
             }),
