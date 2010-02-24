@@ -134,13 +134,17 @@ Arcadia = new JS.Class('Arcadia', {
     getLeftWidth: function() {
         return this.getWidth(this._left, this._centre);
     },
-
+    
     getRightWidth: function() {
         return this.getWidth(this._centre + 1, this._left);
     },
-
+    
     getHTML: function() {
         return this._viewport;
+    },
+    
+    getContainer: function() {
+        return this._container;
     },
     
     states: {
@@ -231,7 +235,7 @@ Arcadia = new JS.Class('Arcadia', {
                 var s1, s2, sliced;
                 
                 if (!(start || end)) return this._store;
-
+                
                 start = this.mod(start);
                 end   = typeof end === 'number' && end !== this.n() ? this.mod(end) : this.n();
                 
