@@ -119,7 +119,7 @@ Arcadia = new JS.Class('Arcadia', {
         
         portWidth    = this._viewport.getWidth();
         leftWidth    = this.getLeftWidth();
-        currentWidth = this._items.at(this._centre).getWidth();
+        currentWidth = this.getCentre().getWidth();
         offset       = Math.floor(((portWidth - currentWidth) / 2) - leftWidth);
         
         return offset;
@@ -142,7 +142,7 @@ Arcadia = new JS.Class('Arcadia', {
          */
         READY: {
             centreOn: function(centre) {
-                if (centre === this._centre || centre === this._items.at(this._centre)) return;
+                if (centre === this._centre || centre === this.getCentre()) return;
                 
                 if (typeof centre !== 'number') {
                     centre = this._items.indexOf(centre);
