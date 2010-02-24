@@ -7,8 +7,6 @@ Arcadia is a full-width image gallery written in JavaScript.
 Todo
 ----
 
-* Don't assume items have uniform width, i.e. that the centre item is an equal
-  distance from both sides.
 * Stop timed rotations when any other control is clicked.
 * Add slider support to the thumbnail area.
 
