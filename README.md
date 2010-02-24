@@ -21,8 +21,8 @@ To get them just run the following command (with `sudo` if you prefer).
     gem install json jake
 
 The gallery itself relies on [Ojay][ojay] (and therefore [YUI][yui] and
-[JS.Class][jsclass]), as well as two other libraries: [Edgecase][edgecase] and
-[Scaling Slider][slider].
+[JS.Class][jsclass]); its dependencies, and the objects it provides, are listed
+in the `jake.yml` file.
 
 
   [json]:     http://flori.github.com/json
@@ -30,5 +30,3 @@ The gallery itself relies on [Ojay][ojay] (and therefore [YUI][yui] and
   [ojay]:     http://ojay.othermedia.org
   [yui]:      http://developer.yahoo.com/yui/2/
   [jsclass]:  http://jsclass.jcoglan.com/
-  [edgecase]: http://github.com/othermedia/edgecase
-  [slider]:   http://github.com/othermedia/scaling-slider
