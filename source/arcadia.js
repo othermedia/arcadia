@@ -284,7 +284,7 @@ Arcadia = new JS.Class('Arcadia', {
                     }));
                     
                     self._descWrapper = Ojay(H.div({className: 'description-wrapper'}, function(W) {
-                        self._descToggle  = Ojay(W.div({className: 'description-toggle'}, this.klass.CLOSED_TEXT));
+                        self._descToggle  = Ojay(W.div({className: 'description-toggle'}, self.klass.CLOSED_TEXT));
                         self._description = Ojay(W.div({className: 'description'}, self._spec.description));
                     }));
                 }));
