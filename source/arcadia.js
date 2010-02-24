@@ -151,7 +151,7 @@ Arcadia = new JS.Class('Arcadia', {
                 }
                 
                 this.setState('ANIMATING');
-                this.notifyObservers('centreStart', centre);
+                this.notifyObservers('centreStart', this._items.at(centre));
                 
                 this._balance(centre);
                 this.getCentre().hide();
