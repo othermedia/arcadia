@@ -149,9 +149,11 @@ Arcadia = new JS.Class('Arcadia', {
          * which item is centred.
          */
         READY: {
-            centreOn: function(centre) {
+            centreOn: function(centre, controller) {
                 if (centre === this._centre || centre === this.getCentre()) return;
                 
+                controller = controller || null;
+
                 if (typeof centre !== 'number') {
                     centre = this._items.indexOf(centre);
                     
@@ -159,7 +161,7 @@ Arcadia = new JS.Class('Arcadia', {
                 }
                 
                 this.setState('ANIMATING');
-                this.notifyObservers('centreStart', this._items.at(centre));
+                this.notifyObservers('centreStart', this._items.at(centre), controller);
                 
                 this._balance(centre);
                 this.getCentre().hide();
@@ -172,17 +174,17 @@ Arcadia = new JS.Class('Arcadia', {
                     }
                 }, 0.8)
                 ._(this).setState('READY')
-                ._(this).notifyObservers('centre', this.getCentre())
+                ._(this).notifyObservers('centre', this.getCentre(), controller)
                 ._(this.getCentre()).show()
-                ._(this).notifyObservers('centreEnd', this.getCentre());
+                ._(this).notifyObservers('centreEnd', this.getCentre(), controller);
             },
             
-            next: function() {
-                this.centreOn(this._items.add(this._centre, 1));
+            next: function(controller) {
+                this.centreOn(this._items.add(this._centre, 1), controller);
             },
             
             previous: function() {
-                this.centreOn(this._items.subtract(this._centre, 1));
+                this.centreOn(this._items.subtract(this._centre, 1), controller);
             },
             
             fitToViewport: function() {
