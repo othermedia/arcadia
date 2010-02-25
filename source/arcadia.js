@@ -58,6 +58,8 @@ Arcadia = new JS.Class('Arcadia', {
         
         Ojay(window).on('resize', this.fitToViewport, this);
         
+        this.on('centreEnd', this.fireQueue, this);
+        
         this.setState('READY');
     },
     
@@ -143,6 +145,14 @@ Arcadia = new JS.Class('Arcadia', {
         return this._viewport;
     },
     
+    next: function(controller) {
+        this.centreOn(this._items.add(this._centre, 1), controller);
+    },
+    
+    previous: function() {
+        this.centreOn(this._items.subtract(this._centre, 1), controller);
+    },
+    
     states: {
         /**
          * In this state the gallery is able to accept user input and change
@@ -179,24 +189,29 @@ Arcadia = new JS.Class('Arcadia', {
                 ._(this).notifyObservers('centreEnd', this.getCentre(), controller);
             },
             
-            next: function(controller) {
-                this.centreOn(this._items.add(this._centre, 1), controller);
-            },
-            
-            previous: function() {
-                this.centreOn(this._items.subtract(this._centre, 1), controller);
-            },
-            
             fitToViewport: function() {
                 this._container.setStyle({left: this.getOffset() + 'px'});
+            },
+            
+            fireQueue: function() {
+                var next = this._queue.shift();
+                
+                if (next) {
+                    this.centreOn.apply(this, next);
+                }
             }
         },
         
         /**
-         * When the gallery is animating, it should respond only to requests
-         * that don't affect the state of the gallery.
+         * When the gallery is animating, it should queue centring requests
+         * rather than executing them.
          */
-        ANIMATING: {}
+        ANIMATING: {
+            centreOn: function(centre, controller) {
+                this._queue = this._queue || [];
+                this._queue.push([centre, controller]);
+            }
+        }
     },
     
     extend: {
