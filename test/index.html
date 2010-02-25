@@ -35,7 +35,7 @@
     <script type="text/javascript">
     require('Ojay', 'Ojay.HTTP', 'Arcadia', function() {
         Arcadia.Controls.Next.include({
-            hide: function(centre) {
+            hide: function(gallery, centre) {
                 this.getHTML().animate({
                     opacity: {
                         from: 1,
@@ -44,9 +44,8 @@
                 }, 0.3).hide();
             },
             
-            show: function(centre) {
+            show: function(gallery, centre) {
                 this.reposition(centre);
-                
                 this.getHTML().show().animate({
                     opacity: {
                         from: 0,
