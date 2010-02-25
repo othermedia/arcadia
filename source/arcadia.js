@@ -128,9 +128,7 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     getWidth: function(start, end) {
-        return this._items.slice(start || 0, end).reduce(function(width, item) {
-            return width + item.getWidth();
-        }, 0);
+        return this.klass.getWidth(this._items, start, end);
     },
     
     getLeftWidth: function() {
@@ -215,6 +213,16 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     extend: {
+        getWidth: function(list, start, end) {
+            if (!(list.isA && list.isA(this.ModNList))) {
+                list = new this.ModNList(list);
+            }
+            
+            return list.slice(start || 0, end).reduce(function(width, item) {
+                return width + item.getWidth();
+            }, 0);
+        },
+        
         ModNList: new JS.Class('ModNList', {
             initialize: function(items) {
                 this._store = items || [];
