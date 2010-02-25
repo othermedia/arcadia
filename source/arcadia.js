@@ -149,7 +149,7 @@ Arcadia = new JS.Class('Arcadia', {
         this.centreOn(this._items.add(this._centre, 1), controller);
     },
     
-    previous: function() {
+    previous: function(controller) {
         this.centreOn(this._items.subtract(this._centre, 1), controller);
     },
     
