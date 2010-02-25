@@ -88,11 +88,13 @@ Arcadia = new JS.Class('Arcadia', {
         }
         
         if (shiftRight) {
-            splicees = this._items.slice(newLeft, oldLeft);
-            offset   = this._spliceLeft(splicees.reverse());
+            splicees = this._items.slice(newLeft, oldLeft).reverse();
+            offset   = this.klass.getWidth(splicees);
+            this._spliceLeft(splicees);
         } else {
             splicees = this._items.slice(oldLeft, newLeft);
-            offset   = this._spliceRight(splicees);
+            offset   = 0 - this.klass.getWidth(splicees);
+            this._spliceRight(splicees);
         }
         
         this._container.setStyle({
@@ -103,17 +105,15 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     _spliceRight: function(items) {
-        return items.reduce(function(offset, item) {
+        items.forEach(function(item) {
             this._container.insert(item.getHTML(), 'bottom');
-            return offset - item.getWidth();
-        }.bind(this), 0);
+        }, this);
     },
     
     _spliceLeft: function(items) {
-        return items.reduce(function(offset, item) {
+        items.forEach(function(item) {
             this._container.insert(item.getHTML(), 'top');
-            return offset + item.getWidth();
-        }.bind(this), 0);
+        }, this);
     },
     
     getOffset: function() {
