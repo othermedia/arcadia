@@ -153,7 +153,7 @@ Arcadia = new JS.Class('Arcadia', {
                 if (centre === this._centre || centre === this.getCentre()) return;
                 
                 controller = controller || null;
-
+                
                 if (typeof centre !== 'number') {
                     centre = this._items.indexOf(centre);
                     
@@ -428,7 +428,7 @@ Arcadia = new JS.Class('Arcadia', {
                         this._html.insert(thumb, 'bottom');
                         
                         thumb.on('click', function() {
-                            this._gallery.centreOn(item);
+                            this._gallery.centreOn(item, this);
                         }, this);
                     }, this);
                     
@@ -441,14 +441,20 @@ Arcadia = new JS.Class('Arcadia', {
                     this._gallery = gallery;
                     this._playing = false;
                     this._timer   = null;
+                    
+                    this._gallery.on('centreStart', function(gallery, item, controller) {
+                        if (!(controller && controller.isA(this.klass))) {
+                            this.pause();
+                        }
+                    }, this);
                 },
                 
                 play: function() {
                     this._timer = setInterval(function() {
-                        this._gallery.next();
+                        this._gallery.next(this);
                     }.bind(this), 3000);
                     
-                    this._gallery.next();
+                    this._gallery.next(this);
                     
                     if (this._html) {
                         this._html.replaceClass('paused', 'playing').setContent('Pause');
@@ -490,11 +496,11 @@ Arcadia = new JS.Class('Arcadia', {
                 },
                 
                 previous: function() {
-                    this._gallery.previous();
+                    this._gallery.previous(this);
                 },
                 
                 next: function() {
-                    this._gallery.next();
+                    this._gallery.next(this);
                 },
                 
                 getHTML: function() {
