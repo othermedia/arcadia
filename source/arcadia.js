@@ -293,29 +293,40 @@ Arcadia = new JS.Class('Arcadia', {
             getHTML: function() {
                 if (this._html) return this._html;
                 
-                var self = this;
-                self._html = Ojay(Ojay.HTML.div({className: 'item'}, function(H) {
-                    self._image = Ojay(H.img({
-                        alt: self._spec.name,
-                        src: self._spec.uri
-                    }));
-                    
-                    self._descWrapper = Ojay(H.div({className: 'description-wrapper'}, function(W) {
-                        self._descToggle  = Ojay(W.div({className: 'description-toggle'}, self.klass.CLOSED_TEXT));
-                        self._description = Ojay(W.div({className: 'description'}, self._spec.description));
-                    }));
-                }));
-                
-                this._html.setStyle({
-                    width:    this._spec.width  + 'px',
-                    height:   this._spec.height + 'px',
-                    overflow: 'hidden',
-                    position: 'relative'
-                });
+                this.extend(this._clone());
                 
                 this._html.on('DOMNodeInserted', this.setup, this);
                 
                 return this._html;
+            },
+            
+            clone: function() {
+                return this._clone()._html;
+            },
+            
+            _clone: function() {
+                var self = this, locals = {};
+                
+                locals._html = Ojay(Ojay.HTML.div({className: 'item'}, function(H) {
+                    locals._image = Ojay(H.img({
+                        alt: self._spec.name,
+                        src: self._spec.uri
+                    }));
+                    
+                    locals._descWrapper = Ojay(H.div({className: 'description-wrapper'}, function(W) {
+                        locals._descToggle  = Ojay(W.div({className: 'description-toggle'}, self.klass.CLOSED_TEXT));
+                        locals._description = Ojay(W.div({className: 'description'}, self._spec.description));
+                    }));
+                }));
+                
+                locals._html.setStyle({
+                    width:    self._spec.width  + 'px',
+                    height:   self._spec.height + 'px',
+                    overflow: 'hidden',
+                    position: 'relative'
+                });
+                
+                return locals;
             },
             
             getThumbnail: function() {
