@@ -7,7 +7,9 @@ Arcadia is a full-width image gallery written in JavaScript.
 Todo
 ----
 
-* Stop timed rotations when any other control is clicked.
+* Fix description insertion: HTML should not be escaped
+* Splicing sometimes results in empty spaces appearing before the centring
+  animation is run; this needs to be fixed.
 * Resizing the window while the gallery is animating can result in the test
   controls being incorrectly repositioned.
 
