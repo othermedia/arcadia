@@ -196,7 +196,7 @@ Arcadia = new JS.Class('Arcadia', {
                 if (typeof centre !== 'number') {
                     centre = this._items.indexOf(centre);
                     
-                    if (centre < 0) return;
+                    if (centre < 0 || !this._items.at(centre).ready) return;
                 }
                 
                 if (this._left > this._centre) {
@@ -446,7 +446,7 @@ Arcadia = new JS.Class('Arcadia', {
             },
             
             setup: function() {
-                if (this._descriptionHeightFixed) return;
+                if (this.ready) return;
                 
                 setTimeout(function() {
                     this._descMaxHeight = this._descWrapper.getHeight();
@@ -464,14 +464,14 @@ Arcadia = new JS.Class('Arcadia', {
                     
                     this._description.show();
                     
-                    this._descriptionCollapsed   = true;
-                    this._descriptionHeightFixed = true;
-                    
                     this._descToggle.on('click', function(el, evnt) {
-                        this[this._descriptionCollapsed ? 'expandDescription' : 'collapseDescription']();
+                        this[this._collapsed ? 'expandDescription' : 'collapseDescription']();
                     }, this);
                     
-                    this.notifyObservers('ready', this);
+                    this._collapsed = true;
+                    this.ready      = true;
+                    
+                    this.notifyObservers('ready');
                 }.bind(this), 10);
             },
             
@@ -484,7 +484,7 @@ Arcadia = new JS.Class('Arcadia', {
                 }, 0.3)
                 ._(this._descToggle).setContent(toggleText)
                 ._(function() {
-                    this._descriptionCollapsed = !this._descriptionCollapsed;
+                    this._collapsed = !this._collapsed;
                 }.bind(this));
             }
         }),
@@ -503,11 +503,13 @@ Arcadia = new JS.Class('Arcadia', {
                     this._gallery.getItems().forEach(function(item) {
                         var thumb = item.getThumbnail();
                         
-                        this._html.insert(thumb, 'bottom');
-                        
-                        thumb.on('click', function() {
-                            this._gallery.centreOn(item, this);
+                        thumb.on('DOMNodeInserted', function() {
+                            thumb.on('click', function() {
+                                this._gallery.centreOn(item, this);
+                            }, this);
                         }, this);
+                        
+                        this._html.insert(thumb, 'bottom');
                     }, this);
                     
                     return this._html;
