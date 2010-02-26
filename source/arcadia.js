@@ -407,6 +407,10 @@ Arcadia = new JS.Class('Arcadia', {
                 this._toggleDescription(this._descMinHeight, this._descMaxHeight, this.klass.OPEN_TEXT);
             },
             
+            set: function(spec) {
+                JS.extend(this._spec, spec);
+            },
+            
             show: function(options) {
                 options = options || {};
                 
