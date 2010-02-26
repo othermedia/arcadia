@@ -53,7 +53,7 @@ Arcadia = new JS.Class('Arcadia', {
             height:   y + 'px',
             position: 'absolute',
             top:      0,
-            left:     this.getOffset() + 'px'
+            left:     this.getLeftOffset() + 'px'
         });
         
         Ojay(window).on('resize', this.fitToViewport, this);
@@ -75,56 +75,85 @@ Arcadia = new JS.Class('Arcadia', {
         return this._items.at(this._centre);
     },
     
-    _balance: function(centre) {
-        var oldLeft, newLeft, splicees, shiftRight, offset;
+    _unbalance: function(centre, shiftRight) {
+        var oldLeft, newLeft, items, splicees, clones, containerStyle, offset;
         
         oldLeft = this._left;
         newLeft = this._items.mod(oldLeft + centre - this._centre);
         
-        if (oldLeft > this._centre) {
-            shiftRight = centre < this._centre || centre >= oldLeft;
-        } else {
-            shiftRight = centre < this._centre && centre >= oldLeft;
-        }
+        containerStyle = {};
         
         if (shiftRight) {
-            splicees = this._items.slice(newLeft, oldLeft).reverse();
-            offset   = this.klass.getWidth(splicees);
-            this._spliceLeft(splicees);
+            items    = this._items.slice(newLeft, oldLeft).reverse();
+            offset   = this.klass.getWidth(items);
+            
+            splicees = items.map(function(i) { return i.getHTML(); });
+            clones   = items.reverse().map(function(i) { return i.clone(); });
+            
+            containerStyle.left  = (this.getLeftOffset() - offset) + 'px';
+            containerStyle.right = '';
+            
+            this._splice(splicees, 'top');
+            this._splice(clones, 'bottom');
         } else {
-            splicees = this._items.slice(oldLeft, newLeft);
-            offset   = 0 - this.klass.getWidth(splicees);
-            this._spliceRight(splicees);
+            items    = this._items.slice(oldLeft, newLeft);
+            offset   = this.klass.getWidth(items);
+            
+            splicees = items.map(function(i) { return i.getHTML(); });
+            clones   = items.reverse().map(function(i) { return i.clone(); });
+            
+            containerStyle.left  = '';
+            containerStyle.right = (this.getRightOffset() - offset) + 'px';
+            
+            this._splice(splicees, 'bottom');
+            this._splice(clones, 'top');
         }
         
-        this._container.setStyle({
-            left: (this.getOffset() - offset) + 'px'
+        containerStyle.width = (this.getWidth() + offset) + 'px';
+        
+        this._container.setStyle(containerStyle);
+        
+        this._left   = newLeft;
+        this._clones = clones;
+        
+        return this;
+    },
+    
+    _rebalance: function() {
+        this._clones.forEach(function(item) {
+            item.remove();
         });
         
-        this._left = newLeft;
+        this._clones = [];
+        
+        this._container.setStyle({
+            width: this.getWidth() + 'px',
+            left:  this.getLeftOffset() + 'px',
+            right: ''
+        });
+        
+        return this;
     },
     
-    _spliceRight: function(items) {
+    _splice: function(items, position) {
         items.forEach(function(item) {
-            this._container.insert(item.getHTML(), 'bottom');
+            this._container.insert(item, position);
         }, this);
     },
     
-    _spliceLeft: function(items) {
-        items.forEach(function(item) {
-            this._container.insert(item.getHTML(), 'top');
-        }, this);
+    getOffset: function(sideWidth) {
+        var portWidth    = this._viewport.getWidth(),
+            currentWidth = this.getCentre().getWidth();
+        
+        return 0 - (sideWidth - ((portWidth - currentWidth) / 2)).floor().abs();
     },
     
-    getOffset: function() {
-        var portWidth, leftWidth, currentWidth, offset;
-        
-        portWidth    = this._viewport.getWidth();
-        leftWidth    = this.getLeftWidth();
-        currentWidth = this.getCentre().getWidth();
-        offset       = Math.floor(((portWidth - currentWidth) / 2) - leftWidth);
-        
-        return offset;
+    getLeftOffset: function() {
+        return this.getOffset(this.getLeftWidth());
+    },
+    
+    getRightOffset: function() {
+        return this.getOffset(this.getRightWidth());
     },
     
     getWidth: function(start, end) {
@@ -158,6 +187,8 @@ Arcadia = new JS.Class('Arcadia', {
          */
         READY: {
             centreOn: function(centre, controller) {
+                var shiftRight, animation;
+                
                 if (centre === this._centre || centre === this.getCentre()) return;
                 
                 controller = controller || null;
@@ -168,19 +199,28 @@ Arcadia = new JS.Class('Arcadia', {
                     if (centre < 0) return;
                 }
                 
+                if (this._left > this._centre) {
+                    shiftRight = centre < this._centre || centre >= this._left;
+                } else {
+                    shiftRight = centre < this._centre && centre >= this._left;
+                }
+                
                 this.setState('ANIMATING');
                 this.notifyObservers('centreStart', this._items.at(centre), controller);
                 
-                this._balance(centre);
+                this._unbalance(centre, shiftRight);
+                
                 this.getCentre().hide();
                 
                 this._centre = centre;
                 
-                this._container.animate({
-                    left: {
-                        to: this.getOffset()
-                    }
-                }, 0.8)
+                animation = {};
+                animation[shiftRight ? 'left' : 'right'] = {
+                    to: shiftRight ? this.getLeftOffset() : this.getRightOffset()
+                };
+                
+                this._container.animate(animation, 0.8)
+                ._(this)._rebalance()
                 ._(this).setState('READY')
                 ._(this).notifyObservers('centre', this.getCentre(), controller)
                 ._(this.getCentre()).show()
@@ -188,7 +228,7 @@ Arcadia = new JS.Class('Arcadia', {
             },
             
             fitToViewport: function() {
-                this._container.setStyle({left: this.getOffset() + 'px'});
+                this._container.setStyle({left: this.getLeftOffset() + 'px'});
             },
             
             fireQueue: function() {
