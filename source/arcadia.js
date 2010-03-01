@@ -356,16 +356,19 @@ Arcadia = new JS.Class('Arcadia', {
                 var self = this, locals = {};
                 
                 locals._html = Ojay(Ojay.HTML.div({className: 'item'}, function(H) {
-                    locals._image = Ojay(H.img({
-                        alt: self._spec.name,
-                        src: self._spec.uri
-                    }));
-                    
                     locals._descWrapper = Ojay(H.div({className: 'description-wrapper'}, function(W) {
                         locals._descToggle  = Ojay(W.div({className: 'description-toggle'})).setContent(self.klass.CLOSED_TEXT);
                         locals._description = Ojay(W.div({className: 'description'})).setContent(self._spec.description);
                     }));
                 }));
+                
+                locals._image = Ojay(Ojay.HTML.img({alt: self._spec.name}));
+                
+                locals._image.on('load', function(img) {
+                    locals._html.insert(img, 'top');
+                });
+                
+                locals._image.set({src: self._spec.uri});
                 
                 locals._html.setStyle({
                     width:    self._spec.width  + 'px',
