@@ -7,8 +7,10 @@ Arcadia is a full-width image gallery written in JavaScript.
 Todo
 ----
 
-* Improve configuration options for the gallery and items.
-* Add support for item types other than images.
+* Improve configuration options for the gallery and items
+* Add support for item types other than images
+* Descriptions aren't showing in Safari
+* Fix async load bugs
 
 
 Dependencies
