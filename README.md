@@ -8,7 +8,6 @@ Todo
 ----
 
 * Improve configuration options for the gallery and items.
-* Fix flicker bug when creating temporary clones of the items.
 * Add support for item types other than images.
 
 

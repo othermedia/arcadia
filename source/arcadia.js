@@ -22,17 +22,11 @@ Arcadia = new JS.Class('Arcadia', {
         this._items = new this.klass.ModNList(json.images.map(function(img, i) {
             var item = new this.klass.Item(this, img);
             
-            if (i !== this._centre) {
-                item.on('ready', function() {
-                    item.hide({animate: false});
-                });
-            }
+            item.representation().on('ready', function(rep) {
+                if (i === this._centre) rep.show({animate: false});
+            }, this);
             
             this._container.insert(item.getHTML(), 'bottom');
-            
-            item.getHTML().on('click', function() {
-                this.centreOn(item);
-            }, this);
             
             x += img.width;
             
@@ -84,47 +78,43 @@ Arcadia = new JS.Class('Arcadia', {
         containerStyle = {};
         
         if (shiftRight) {
-            items    = this._items.slice(newLeft, oldLeft).reverse();
-            offset   = this.klass.getWidth(items);
-            
-            splicees = items.map(function(i) { return i.getHTML(); });
-            clones   = items.reverse().map(function(i) { return i.clone(); });
-            
+            items = this._items.slice(newLeft, oldLeft);
+        } else {
+            items = this._items.slice(oldLeft, newLeft);
+        }
+        
+        offset   = this.klass.getWidth(items);
+        splicees = items.map(function(i) { return i.representation(); });
+        clones   = items.map(function(i) { return i.clone(); });
+        
+        if (shiftRight) {
             containerStyle.left  = (this.getLeftOffset() - offset) + 'px';
             containerStyle.right = '';
             
-            this._splice(splicees, 'top');
-            this._splice(clones, 'bottom');
+            this._splice(clones, 'top');
         } else {
-            items    = this._items.slice(oldLeft, newLeft);
-            offset   = this.klass.getWidth(items);
-            
-            splicees = items.map(function(i) { return i.getHTML(); });
-            clones   = items.reverse().map(function(i) { return i.clone(); });
-            
             containerStyle.left  = '';
             containerStyle.right = (this.getRightOffset() - offset) + 'px';
             
-            this._splice(splicees, 'bottom');
-            this._splice(clones, 'top');
+            this._splice(clones, 'bottom');
         }
         
         containerStyle.width = (this.getWidth() + offset) + 'px';
         
         this._container.setStyle(containerStyle);
         
-        this._left   = newLeft;
-        this._clones = clones;
+        this._left     = newLeft;
+        this._splicees = splicees;
         
         return this;
     },
     
     _rebalance: function() {
-        this._clones.forEach(function(item) {
-            item.remove();
+        this._splicees.forEach(function(representation) {
+            representation.remove();
         });
         
-        this._clones = [];
+        this._splicees = [];
         
         this._container.setStyle({
             width: this.getWidth() + 'px',
@@ -135,9 +125,9 @@ Arcadia = new JS.Class('Arcadia', {
         return this;
     },
     
-    _splice: function(items, position) {
-        items.forEach(function(item) {
-            this._container.insert(item, position);
+    _splice: function(representations, position) {
+        representations.forEach(function(representation) {
+            this._container.insert(representation.getHTML(), position);
         }, this);
     },
     
@@ -195,8 +185,7 @@ Arcadia = new JS.Class('Arcadia', {
                 
                 if (typeof centre !== 'number') {
                     centre = this._items.indexOf(centre);
-                    
-                    if (centre < 0 || !this._items.at(centre).ready) return;
+                    if (centre < 0) return;
                 }
                 
                 if (this._left > this._centre) {
@@ -210,7 +199,7 @@ Arcadia = new JS.Class('Arcadia', {
                 
                 this._unbalance(centre, shiftRight);
                 
-                this.getCentre().hide();
+                this.getCentre().representation().hide();
                 
                 this._centre = centre;
                 
@@ -223,7 +212,7 @@ Arcadia = new JS.Class('Arcadia', {
                 ._(this)._rebalance()
                 ._(this).setState('READY')
                 ._(this).notifyObservers('centre', this.getCentre(), controller)
-                ._(this.getCentre()).show()
+                ._(this.getCentre()).representation().show()
                 ._(this).notifyObservers('centreEnd', this.getCentre(), controller);
             },
             
@@ -326,58 +315,33 @@ Arcadia = new JS.Class('Arcadia', {
         }),
         
         Item: new JS.Class({
-            include: Ojay.Observable,
-            
-            extend: {
-                OPEN_TEXT:   'Collapse',
-                CLOSED_TEXT: 'Expand'
-            },
-            
-            initialize: function(gallery, spec) {
+            initialize: function(gallery, options) {
                 this._gallery = gallery;
-                this._spec    = spec;
+                this._options = options;
             },
             
-            getHTML: function() {
-                if (this._html) return this._html;
+            representation: function() {
+                if (this._representation) return this._representation;
                 
-                this.extend(this._clone());
+                this.clone();
                 
-                this._html.on('DOMNodeInserted', this.setup, this);
-                
-                return this._html;
+                return this._representation;
             },
             
             clone: function() {
-                return this._clone()._html;
+                this._representation = new this.klass.Representation(this, {
+                    name:        this._options.name,
+                    uri:         this._options.uri,
+                    width:       this._options.width,
+                    height:      this._options.height,
+                    description: this._options.description
+                });
+                
+                return this._representation;
             },
             
-            _clone: function() {
-                var self = this, locals = {};
-                
-                locals._html = Ojay(Ojay.HTML.div({className: 'item'}, function(H) {
-                    locals._descWrapper = Ojay(H.div({className: 'description-wrapper'}, function(W) {
-                        locals._descToggle  = Ojay(W.div({className: 'description-toggle'})).setContent(self.klass.CLOSED_TEXT);
-                        locals._description = Ojay(W.div({className: 'description'})).setContent(self._spec.description);
-                    }));
-                }));
-                
-                locals._image = Ojay(Ojay.HTML.img({alt: self._spec.name}));
-                
-                locals._image.on('load', function(img) {
-                    locals._html.insert(img, 'top');
-                });
-                
-                locals._image.set({src: self._spec.uri});
-                
-                locals._html.setStyle({
-                    width:    self._spec.width  + 'px',
-                    height:   self._spec.height + 'px',
-                    overflow: 'hidden',
-                    position: 'relative'
-                });
-                
-                return locals;
+            getHTML: function() {
+                return this.representation().getHTML();
             },
             
             getThumbnail: function() {
@@ -386,109 +350,175 @@ Arcadia = new JS.Class('Arcadia', {
                 var self = this;
                 self._thumbnail = Ojay(Ojay.HTML.div({className: 'thumbnail'}, function(H) {
                     H.img({
-                        alt: self._name,
-                        src: self._spec.thumbnail.uri
+                        alt: self._options.name,
+                        src: self._options.thumbnail.uri
                     });
                 }))
                 .setStyle({
-                    width:  self._spec.thumbnail.width  + 'px',
-                    height: self._spec.thumbnail.height + 'px'
+                    width:  self._options.thumbnail.width  + 'px',
+                    height: self._options.thumbnail.height + 'px'
                 });
                 
                 return this._thumbnail;
             },
             
             getWidth: function() {
-                return this._spec.width;
+                return this._options.width;
             },
             
-            collapseDescription: function() {
-                this._toggleDescription(this._descMaxHeight, this._descMinHeight, this.klass.CLOSED_TEXT);
+            getGallery: function() {
+                return this._gallery;
             },
             
-            expandDescription: function() {
-                this._toggleDescription(this._descMinHeight, this._descMaxHeight, this.klass.OPEN_TEXT);
-            },
-            
-            set: function(spec) {
-                JS.extend(this._spec, spec);
-            },
-            
-            show: function(options) {
-                options = options || {};
-                
-                this.getHTML().addClass('current');
-                
-                if (options.animate !== false) {
-                    this._descWrapper.show().animate({
-                        opacity: {
-                            from: 0,
-                            to:   1
+            extend: {
+                Representation: new JS.Class({
+                    include: [Ojay.Observable, JS.State],
+                    
+                    extend: {
+                        OPEN_TEXT:   'Collapse',
+                        CLOSED_TEXT: 'Expand',
+                        TOGGLE_SPEED: 0.3,
+                        FADE_SPEED:   0.4
+                    },
+                    
+                    initialize: function(item, options) {
+                        this._item    = item;
+                        this._options = options;
+                        
+                        this._toggleSpeed = options.toggleSpeed || this.klass.TOGGLE_SPEED;
+                        this._fadeSpeed   = options.fadeSpeed   || this.klass.FADE_SPEED;
+                        
+                        this._makeHTML();
+                    },
+                    
+                    getHTML: function() {
+                        return this._html;
+                    },
+                    
+                    remove: function() {
+                        this._html.remove();
+                    },
+                    
+                    show: function(options) {
+                        options = options || {};
+                        
+                        this.getHTML().addClass('current');
+                        
+                        if (options.animate !== false) {
+                            this._descWrapper.show().animate({
+                                opacity: {
+                                    from: 0,
+                                    to:   1
+                                }
+                            }, this._fadeSpeed);
+                        } else {
+                            this._descWrapper.setStyle({opacity: 1}).show();
                         }
-                    }, 0.4);
-                } else {
-                    this._descWrapper.setStyle({opacity: 1}).show();
-                }
-            },
-            
-            hide: function(options) {
-                options = options || {};
-                
-                this.getHTML().removeClass('current');
-                
-                if (options.animate !== false) {
-                    this._descWrapper.animate({
-                        opacity: {
-                            from: 1,
-                            to:   0
+                    },
+                    
+                    hide: function(options) {
+                        options = options || {};
+                        
+                        this.getHTML().removeClass('current');
+                        
+                        if (options.animate !== false) {
+                            this._descWrapper.animate({
+                                opacity: {
+                                    from: 1,
+                                    to:   0
+                                }
+                            }, this._fadeSpeed).hide();
+                        } else {
+                            this._descWrapper.setStyle({opacity: 0}).hide();
                         }
-                    }, 0.4).hide();
-                } else {
-                    this._descWrapper.setStyle({opacity: 0}).hide();
-                }
-            },
-            
-            setup: function() {
-                if (this.ready) return;
-                
-                setTimeout(function() {
-                    this._descMaxHeight = this._descWrapper.getHeight();
-                    this._description.hide();
-                    this._descMinHeight = this._descWrapper.getHeight();
+                    },
                     
-                    this._descWrapper.setStyle({
-                        position: 'absolute',
-                        left:     0,
-                        bottom:   0,
-                        width:    this._spec.width + 'px',
-                        height:   this._descMinHeight + 'px',
-                        overflow: 'hidden'
-                    });
+                    states: {
+                        EXPANDED: {
+                            toggle: function() {
+                                this._toggle(this._descMaxHeight, this._descMinHeight, 'COLLAPSED', this.klass.CLOSED_TEXT);
+                            }
+                        },
+                        
+                        COLLAPSED: {
+                            toggle: function() {
+                                this._toggle(this._descMinHeight, this._descMaxHeight, 'EXPANDED', this.klass.OPEN_TEXT);
+                            }
+                        },
+                        
+                        ANIMATING: {}
+                    },
                     
-                    this._description.show();
+                    _toggle: function(fromHeight, toHeight, state, text) {
+                        this.setState('ANIMATING');
+                        this._descWrapper.animate({
+                            height: {
+                                from: fromHeight,
+                                to:   toHeight
+                            }
+                        }, this._toggleSpeed)
+                        ._(this._descToggle).setContent(text)
+                        ._(function() {
+                            this.setState(state);
+                        }.bind(this));
+                    },
                     
-                    this._descToggle.on('click', function(el, evnt) {
-                        this[this._collapsed ? 'expandDescription' : 'collapseDescription']();
-                    }, this);
+                    _makeHTML: function() {
+                        var self = this;
+                        self._html = Ojay(Ojay.HTML.div({className: 'item'}, function(H) {
+                            self._descWrapper = Ojay(H.div({className: 'description-wrapper'}, function(W) {
+                                self._descToggle  = Ojay(W.div({className: 'description-toggle'})).setContent(self.klass.CLOSED_TEXT);
+                                self._description = Ojay(W.div({className: 'description'})).setContent(self._options.description);
+                            }));
+                        }));
+                        
+                        this._image = Ojay(Ojay.HTML.img({alt: this._options.name}));
+                        
+                        this._addEvents();
+                        this._insertImage();
+                        
+                        this._html.setStyle({
+                            width:    self._options.width  + 'px',
+                            height:   self._options.height + 'px',
+                            overflow: 'hidden',
+                            position: 'relative'
+                        });
+                    },
                     
-                    this._collapsed = true;
-                    this.ready      = true;
+                    _insertImage: function() {
+                        this._image.on('load')._(this._html).insert(this._image, 'top');
+                        this._image.set({src: this._options.uri});
+                    },
                     
-                    this.notifyObservers('ready');
-                }.bind(this), 10);
-            },
-            
-            _toggleDescription: function(startHeight, finishHeight, toggleText) {
-                this._descWrapper.animate({
-                    height: {
-                        from: startHeight,
-                        to:   finishHeight
+                    _addEvents: function() {
+                        this._html.on('click')._(this._item.getGallery()).centreOn(this._item);
+                        this._descToggle.on('click')._(this).toggle();
+                        this._html.on('DOMNodeInserted', function(el, evnt) {
+                            if (evnt.getTarget().node === this._html.node) {
+                                this._setup();
+                            }
+                        }, this);
+                    },
+                    
+                    _setup: function() {
+                        this._descMaxHeight = this._descWrapper.getHeight();
+                        this._description.hide();
+                        this._descMinHeight = this._descWrapper.getHeight();
+                        this._descWrapper.setStyle({
+                            position: 'absolute',
+                            left:     0,
+                            bottom:   0,
+                            width:    this._options.width + 'px',
+                            height:   this._descMinHeight + 'px',
+                            overflow: 'hidden'
+                        });
+                        this._description.show();
+                        
+                        this.hide({animate: false});
+                        this.setState('COLLAPSED');
+                        this.notifyObservers('ready');
                     }
-                }, 0.3)
-                ._(this._descToggle).setContent(toggleText)
-                ._(function() {
-                    this._collapsed = !this._collapsed;
-                }.bind(this));
+                })
             }
         }),
         
