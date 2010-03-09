@@ -78,7 +78,7 @@
             }
         });
         
-        Ojay.HTTP.GET('images.json', {}, {
+        Ojay.HTTP.GET('items.json', {}, {
             onSuccess: function(response) {
                 var json    = response.parseJSON(),
                     gallery = new Arcadia('#gallery', json),

@@ -1,5 +1,5 @@
-/**
- * Arcadia is a full-width image gallery with a variety of control types,
+ /**
+ * Arcadia is a full-width media gallery with a variety of control types,
  * including thumbnails, next and previous buttons, and a play/pause control to
  * make the gallery rotate without further user input.
  */
@@ -16,25 +16,25 @@ Arcadia = new JS.Class('Arcadia', {
         ._(this._container).insert(this._viewport, 'after')
         ._(this._viewport).setContent(this._container);
         
-        this._centre = Math.floor((json.images.length - 1) / 2);
+        this._centre = Math.floor((json.items.length - 1) / 2);
         this._left   = 0;
         
-        this._items = new this.klass.ModNList(json.images.map(function(img, i) {
-            var item = new this.klass.Item(this, img);
+        this._items = new this.klass.ModNList(json.items.map(function(item, i) {
+            var galleryItem = new this.klass.Item(this, item);
             
-            item.representation().on('ready', function(rep) {
+            galleryItem.representation().on('ready', function(rep) {
                 if (i === this._centre) rep.show({animate: false});
             }, this);
             
-            this._container.insert(item.getHTML(), 'bottom');
+            this._container.insert(galleryItem.getHTML(), 'bottom');
             
-            x += img.width;
+            x += item.image.width;
             
-            if (img.height > y) {
-                y = img.height;
+            if (item.image.height > y) {
+                y = item.image.height;
             }
             
-            return item;
+            return galleryItem;
         }, this));
         
         this._viewport.setStyle({
@@ -331,10 +331,10 @@ Arcadia = new JS.Class('Arcadia', {
             clone: function() {
                 this._representation = new this.klass.Representation(this, {
                     name:        this._options.name,
-                    uri:         this._options.uri,
-                    width:       this._options.width,
-                    height:      this._options.height,
-                    description: this._options.description
+                    description: this._options.description,
+                    uri:         this._options.image.uri,
+                    width:       this._options.image.width,
+                    height:      this._options.image.height
                 });
                 
                 return this._representation;
@@ -363,7 +363,7 @@ Arcadia = new JS.Class('Arcadia', {
             },
             
             getWidth: function() {
-                return this._options.width;
+                return this._options.image.width;
             },
             
             getGallery: function() {
