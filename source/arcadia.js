@@ -493,11 +493,9 @@ Arcadia = new JS.Class('Arcadia', {
                     _addEvents: function() {
                         this._html.on('click')._(this._item.getGallery()).centreOn(this._item);
                         this._descToggle.on('click')._(this).toggle();
-                        this._html.on('DOMNodeInserted', function(el, evnt) {
-                            if (evnt.getTarget().node === this._html.node) {
-                                this._setup();
-                            }
-                        }, this);
+                        setTimeout(function() {
+                            this._setup();
+                        }.bind(this), 10);
                     },
                     
                     _setup: function() {
