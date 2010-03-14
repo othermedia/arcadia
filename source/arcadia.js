@@ -536,13 +536,11 @@ Arcadia = new JS.Class('Arcadia', {
                     this._gallery.getItems().forEach(function(item) {
                         var thumb = item.getThumbnail();
                         
-                        thumb.on('DOMNodeInserted', function() {
-                            thumb.on('click', function() {
-                                this._gallery.centreOn(item, this);
-                            }, this);
-                        }, this);
-                        
                         this._html.insert(thumb, 'bottom');
+                        
+                        thumb.on('click', function() {
+                            this._gallery.centreOn(item, this);
+                        }, this);
                     }, this);
                     
                     return this._html;
