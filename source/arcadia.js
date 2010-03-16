@@ -318,6 +318,7 @@ Arcadia = new JS.Class('Arcadia', {
             initialize: function(gallery, options) {
                 this._gallery = gallery;
                 this._options = options;
+                this._state   = options.initialState;
             },
             
             representation: function() {
@@ -330,11 +331,12 @@ Arcadia = new JS.Class('Arcadia', {
             
             clone: function() {
                 this._representation = new this.klass.Representation(this, {
-                    name:        this._options.name,
-                    description: this._options.description,
-                    uri:         this._options.image.uri,
-                    width:       this._options.image.width,
-                    height:      this._options.image.height
+                    name:         this._options.name,
+                    description:  this._options.description,
+                    uri:          this._options.image.uri,
+                    width:        this._options.image.width,
+                    height:       this._options.image.height,
+                    initialState: this._state
                 });
                 
                 return this._representation;
@@ -370,25 +372,47 @@ Arcadia = new JS.Class('Arcadia', {
                 return this._gallery;
             },
             
+            setState: function(state) {
+                console.log(state);
+                this._state = state;
+            },
+            
             extend: {
                 Representation: new JS.Class({
                     include: [Ojay.Observable, JS.State],
                     
                     extend: {
-                        OPEN_TEXT:   'Collapse',
-                        CLOSED_TEXT: 'Expand',
-                        TOGGLE_SPEED: 0.3,
-                        FADE_SPEED:   0.4
+                        TOGGLE_TEXT: {
+                            EXPANDED:  'Collapse',
+                            COLLAPSED: 'Expand'
+                        },
+                        
+                        TOGGLE_SPEED:   0.3,
+                        FADE_SPEED:     0.4
                     },
                     
                     initialize: function(item, options) {
                         this._item    = item;
                         this._options = options;
                         
+                        this._initialState = options.initialState || 'EXPANDED';
+                        
+                        options.toggleText = options.toggleText || {};
+                        this._toggleText = {
+                            EXPANDED:  options.toggleText.expanded  || this.klass.TOGGLE_TEXT.EXPANDED,
+                            COLLAPSED: options.toggleText.collapsed || this.klass.TOGGLE_TEXT.COLLAPSED
+                        };
+                        
                         this._toggleSpeed = options.toggleSpeed || this.klass.TOGGLE_SPEED;
                         this._fadeSpeed   = options.fadeSpeed   || this.klass.FADE_SPEED;
                         
                         this._makeHTML();
+                    },
+                    
+                    setState: function(state) {
+                        this._item.setState(state);
+                        this.callSuper(state);
+                        return this;
                     },
                     
                     getHTML: function() {
@@ -436,30 +460,31 @@ Arcadia = new JS.Class('Arcadia', {
                     states: {
                         EXPANDED: {
                             toggle: function() {
-                                this._toggle(this._descMaxHeight, this._descMinHeight, 'COLLAPSED', this.klass.CLOSED_TEXT);
+                                this._toggle('COLLAPSED');
                             }
                         },
                         
                         COLLAPSED: {
                             toggle: function() {
-                                this._toggle(this._descMinHeight, this._descMaxHeight, 'EXPANDED', this.klass.OPEN_TEXT);
+                                this._toggle('EXPANDED');
                             }
                         },
                         
                         ANIMATING: {}
                     },
                     
-                    _toggle: function(fromHeight, toHeight, state, text) {
+                    _toggle: function(newState) {
+                        var oldState = newState === 'EXPANDED' ? 'COLLAPSED' : 'EXPANDED';
                         this.setState('ANIMATING');
                         this._descWrapper.animate({
                             height: {
-                                from: fromHeight,
-                                to:   toHeight
+                                from: this._heights[oldState],
+                                to:   this._heights[newState]
                             }
                         }, this._toggleSpeed)
-                        ._(this._descToggle).setContent(text)
+                        ._(this._descToggle).setContent(this._toggleText[newState])
                         ._(function() {
-                            this.setState(state);
+                            this.setState(newState);
                         }.bind(this));
                     },
                     
@@ -467,8 +492,10 @@ Arcadia = new JS.Class('Arcadia', {
                         var self = this;
                         self._html = Ojay(Ojay.HTML.div({className: 'item'}, function(H) {
                             self._descWrapper = Ojay(H.div({className: 'description-wrapper'}, function(W) {
-                                self._descToggle  = Ojay(W.div({className: 'description-toggle'})).setContent(self.klass.OPEN_TEXT);
-                                self._description = Ojay(W.div({className: 'description'})).setContent(self._options.description);
+                                self._descToggle  = Ojay(W.div({className: 'description-toggle'}))
+                                    .setContent(self._toggleText[self._initialState]);
+                                self._description = Ojay(W.div({className: 'description'}))
+                                    .setContent(self._options.description);
                             }));
                         }));
                         
@@ -499,21 +526,22 @@ Arcadia = new JS.Class('Arcadia', {
                     },
                     
                     _setup: function() {
-                        this._descMaxHeight = this._descWrapper.getHeight();
+                        this._heights = {};
+                        this._heights.EXPANDED = this._descWrapper.getHeight();
                         this._description.hide();
-                        this._descMinHeight = this._descWrapper.getHeight();
+                        this._heights.COLLAPSED = this._descWrapper.getHeight();
                         this._descWrapper.setStyle({
                             position: 'absolute',
                             left:     0,
                             bottom:   0,
                             width:    this._options.width + 'px',
-                            height:   this._descMaxHeight + 'px',
+                            height:   this._heights[this._initialState] + 'px',
                             overflow: 'hidden'
                         });
                         this._description.show();
                         
                         this.hide({animate: false});
-                        this.setState('EXPANDED');
+                        this.setState(this._initialState);
                         this.notifyObservers('ready');
                     }
                 })
