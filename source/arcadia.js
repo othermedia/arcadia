@@ -28,10 +28,10 @@ Arcadia = new JS.Class('Arcadia', {
             
             this._container.insert(galleryItem.getHTML(), 'bottom');
             
-            x += item.image.width;
+            x += galleryItem.getWidth();
             
-            if (item.image.height > y) {
-                y = item.image.height;
+            if (galleryItem.getHeight() > y) {
+                y = galleryItem.getHeight();
             }
             
             return galleryItem;
@@ -319,6 +319,9 @@ Arcadia = new JS.Class('Arcadia', {
                 this._gallery = gallery;
                 this._options = options;
                 this._state   = options.initialState;
+                
+                this._width   = options.width  || options.image.width;
+                this._height  = options.height || options.image.height;
             },
             
             representation: function() {
@@ -366,7 +369,11 @@ Arcadia = new JS.Class('Arcadia', {
             },
             
             getWidth: function() {
-                return this._options.image.width;
+                return this._width;
+            },
+            
+            getHeight: function() {
+                return this._height;
             },
             
             getGallery: function() {
@@ -374,7 +381,6 @@ Arcadia = new JS.Class('Arcadia', {
             },
             
             setState: function(state) {
-                console.log(state);
                 this._state = state;
             },
             
