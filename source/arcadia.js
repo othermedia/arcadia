@@ -336,6 +336,7 @@ Arcadia = new JS.Class('Arcadia', {
                     uri:          this._options.image.uri,
                     width:        this._options.image.width,
                     height:       this._options.image.height,
+                    toggleText:   this._options.toggleText,
                     initialState: this._state
                 });
                 
