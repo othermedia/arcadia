@@ -467,7 +467,7 @@ Arcadia = new JS.Class('Arcadia', {
                         var self = this;
                         self._html = Ojay(Ojay.HTML.div({className: 'item'}, function(H) {
                             self._descWrapper = Ojay(H.div({className: 'description-wrapper'}, function(W) {
-                                self._descToggle  = Ojay(W.div({className: 'description-toggle'})).setContent(self.klass.CLOSED_TEXT);
+                                self._descToggle  = Ojay(W.div({className: 'description-toggle'})).setContent(self.klass.OPEN_TEXT);
                                 self._description = Ojay(W.div({className: 'description'})).setContent(self._options.description);
                             }));
                         }));
@@ -507,13 +507,13 @@ Arcadia = new JS.Class('Arcadia', {
                             left:     0,
                             bottom:   0,
                             width:    this._options.width + 'px',
-                            height:   this._descMinHeight + 'px',
+                            height:   this._descMaxHeight + 'px',
                             overflow: 'hidden'
                         });
                         this._description.show();
                         
                         this.hide({animate: false});
-                        this.setState('COLLAPSED');
+                        this.setState('EXPANDED');
                         this.notifyObservers('ready');
                     }
                 })
