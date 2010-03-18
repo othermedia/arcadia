@@ -561,34 +561,45 @@ Arcadia = new JS.Class('Arcadia', {
             Thumbnails: new JS.Class('Arcadia.Controls.Thumbnails', {
                 initialize: function(gallery) {
                     this._gallery = gallery;
+                    this._current = null;
+                    
+                    this._gallery.on('centreStart', this.setCurrent, this);
+                },
+                
+                setCurrent: function(gallery, item) {
+                    var current = this._thumbs.get(item);
+                    
+                    if (current === this._current) return;
+                    
+                    this._current.removeClass('selected');
+                    current.addClass('selected');
+                    
+                    this._current = current;
                 },
                 
                 getHTML: function() {
                     if (this._html) return this._html;
                     
-                    var selected;
-                    
                     this._html = Ojay(Ojay.HTML.div({className: 'arcadia-thumbnails'}));
                     
-                    this._gallery.getItems().forEach(function(item) {
+                    this._thumbs = this._gallery.getItems().reduce(function(hash, item) {
                         var thumb = item.getThumbnail();
                         
                         if (item === this._gallery.getCentre()) {
-                            selected = thumb;
+                            this._current = thumb;
                             thumb.addClass('selected');
                         }
                         
                         this._html.insert(thumb, 'bottom');
                         
                         thumb.on('click', function() {
-                            if (thumb === selected) return;
-                            
-                            selected.removeClass('selected');
-                            thumb.addClass('selected');
                             this._gallery.centreOn(item, this);
-                            selected = thumb;
                         }, this);
-                    }, this);
+                        
+                        hash.store(item, thumb);
+                        
+                        return hash;
+                    }.bind(this), new JS.Hash());
                     
                     return this._html;
                 }
