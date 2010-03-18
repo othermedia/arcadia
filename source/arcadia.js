@@ -359,6 +359,8 @@ Arcadia = new JS.Class('Arcadia', {
                         alt: self._options.name,
                         src: self._options.thumbnail.uri
                     });
+
+                    H.span({className: 'thumbnail-label'}, self._options.name);
                 }))
                 .setStyle({
                     width:  self._options.thumbnail.width  + 'px',
