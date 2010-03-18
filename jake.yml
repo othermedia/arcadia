@@ -15,6 +15,7 @@ packages:
   arcadia:
     files:
       - arcadia
+      - controls
     meta:
       requires:
         - JS.Class
