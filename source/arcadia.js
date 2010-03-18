@@ -359,7 +359,7 @@ Arcadia = new JS.Class('Arcadia', {
                         alt: self._options.name,
                         src: self._options.thumbnail.uri
                     });
-
+                    
                     H.span({className: 'thumbnail-label'}, self._options.name);
                 }))
                 .setStyle({
@@ -566,15 +566,27 @@ Arcadia = new JS.Class('Arcadia', {
                 getHTML: function() {
                     if (this._html) return this._html;
                     
+                    var selected;
+                    
                     this._html = Ojay(Ojay.HTML.div({className: 'arcadia-thumbnails'}));
                     
                     this._gallery.getItems().forEach(function(item) {
                         var thumb = item.getThumbnail();
                         
+                        if (item === this._gallery.getCentre()) {
+                            selected = thumb;
+                            thumb.addClass('selected');
+                        }
+                        
                         this._html.insert(thumb, 'bottom');
                         
                         thumb.on('click', function() {
+                            if (thumb === selected) return;
+                            
+                            selected.removeClass('selected');
+                            thumb.addClass('selected');
                             this._gallery.centreOn(item, this);
+                            selected = thumb;
                         }, this);
                     }, this);
                     
