@@ -179,14 +179,20 @@ Arcadia = new JS.Class('Arcadia', {
             centreOn: function(centre, controller) {
                 var shiftRight, animation;
                 
-                if (centre === this._centre || centre === this.getCentre()) return;
-                
-                controller = controller || null;
-                
                 if (typeof centre !== 'number') {
                     centre = this._items.indexOf(centre);
                     if (centre < 0) return;
                 }
+                
+                if (centre === this._centre) {
+                    if (this.getCentre().hasVideo()) {
+                        this.notifyObservers('videoselect', this.getCentre().getVideo());
+                    }
+                    
+                    return;
+                }
+                
+                controller = controller || null;
                 
                 if (this._left > this._centre) {
                     shiftRight = centre < this._centre || centre >= this._left;
@@ -208,12 +214,12 @@ Arcadia = new JS.Class('Arcadia', {
                     to: shiftRight ? this.getLeftOffset() : this.getRightOffset()
                 };
                 
-                this._container.animate(animation, 0.8)
-                ._(this)._rebalance()
-                ._(this).setState('READY')
-                ._(this).notifyObservers('centre', this.getCentre(), controller)
-                ._(this.getCentre()).representation().show()
-                ._(this).notifyObservers('centreEnd', this.getCentre(), controller);
+                return this._container.animate(animation, 0.8)
+                    ._(this)._rebalance()
+                    ._(this).setState('READY')
+                    ._(this).notifyObservers('centre', this.getCentre(), controller)
+                    ._(this.getCentre()).representation().show()
+                    ._(this).notifyObservers('centreEnd', this.getCentre(), controller);
             },
             
             fitToViewport: function() {
@@ -350,6 +356,17 @@ Arcadia = new JS.Class('Arcadia', {
                 return this.representation().getHTML();
             },
             
+            hasVideo: function() {
+                var video = this._options.video, count = 0, p;
+                if (typeof video !== 'object') return false;
+                for (p in video) if (typeof video[p] === 'object') count++;
+                return count > 0;
+            },
+            
+            getVideo: function() {
+                return this._options.video || {};
+            },
+            
             getThumbnail: function() {
                 if (this._thumbnail) return this._thumbnail;
                 
@@ -438,14 +455,14 @@ Arcadia = new JS.Class('Arcadia', {
                         this.getHTML().addClass('current');
                         
                         if (options.animate !== false) {
-                            this._descWrapper.show().animate({
+                            this._contentWrapper.show().animate({
                                 opacity: {
                                     from: 0,
                                     to:   1
                                 }
                             }, this._fadeSpeed);
                         } else {
-                            this._descWrapper.setStyle({opacity: 1}).show();
+                            this._contentWrapper.setStyle({opacity: 1}).show();
                         }
                     },
                     
@@ -455,14 +472,14 @@ Arcadia = new JS.Class('Arcadia', {
                         this.getHTML().removeClass('current');
                         
                         if (options.animate !== false) {
-                            this._descWrapper.animate({
+                            this._contentWrapper.animate({
                                 opacity: {
                                     from: 1,
                                     to:   0
                                 }
                             }, this._fadeSpeed).hide();
                         } else {
-                            this._descWrapper.setStyle({opacity: 0}).hide();
+                            this._contentWrapper.setStyle({opacity: 0}).hide();
                         }
                     },
                     
@@ -499,12 +516,19 @@ Arcadia = new JS.Class('Arcadia', {
                     
                     _makeHTML: function() {
                         var self = this;
+                        
                         self._html = Ojay(Ojay.HTML.div({className: 'item'}, function(H) {
-                            self._descWrapper = Ojay(H.div({className: 'description-wrapper'}, function(W) {
-                                self._descToggle  = Ojay(W.div({className: 'description-toggle'}))
-                                    .setContent(self._toggleText[self._initialState]);
-                                self._description = Ojay(W.div({className: 'description'}))
-                                    .setContent(self._options.description);
+                            self._contentWrapper = Ojay(H.div({className: 'content'}, function(C) {
+                                if (self._item.hasVideo()) {
+                                    self._videoButton = Ojay(C.div({className: 'video-button'}, 'Play video'));
+                                }
+                                
+                                self._descWrapper = Ojay(C.div({className: 'description-wrapper'}, function(W) {
+                                    self._descToggle  = Ojay(W.div({className: 'description-toggle'}))
+                                        .setContent(self._toggleText[self._initialState]);
+                                    self._description = Ojay(W.div({className: 'description'}))
+                                        .setContent(self._options.description);
+                                }));
                             }));
                         }));
                         
@@ -514,10 +538,18 @@ Arcadia = new JS.Class('Arcadia', {
                         this._insertImage();
                         
                         this._html.setStyle({
-                            width:    self._options.width  + 'px',
-                            height:   self._options.height + 'px',
+                            width:    this._options.width  + 'px',
+                            height:   this._options.height + 'px',
                             overflow: 'hidden',
                             position: 'relative'
+                        });
+                        
+                        this._contentWrapper.setStyle({
+                            width:    this._options.width  + 'px',
+                            height:   this._options.height + 'px',
+                            position: 'absolute',
+                            top:      0,
+                            left:     0
                         });
                     },
                     

@@ -32,6 +32,16 @@ jake_hook :build_complete do |build|
         :height => 200
       }
     }
+    
+    if name =~ /4\.jpg$/
+      gallery[:items].last[:video] = {
+        "video/m4a" => {
+          :uri    => "video/test.m4a",
+          :width  => 200,
+          :height => 150
+        }
+      }
+    end
   end
   
   puts "Writing images listing to ./test/items.json"
