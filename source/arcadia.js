@@ -542,7 +542,7 @@ Arcadia = new JS.Class('Arcadia', {
                             height:   this._options.height + 'px',
                             overflow: 'hidden',
                             position: 'relative'
-                        });
+                        }).addClass(self._item.hasVideo() ? 'item-video' : 'item-image');
                         
                         this._contentWrapper.setStyle({
                             width:    this._options.width  + 'px',
