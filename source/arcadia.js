@@ -372,6 +372,10 @@ Arcadia = new JS.Class('Arcadia', {
                 
                 var self = this;
                 self._thumbnail = Ojay(Ojay.HTML.div({className: 'thumbnail'}, function(H) {
+                    if (self.hasVideo()) {
+                        H.div({className: 'video-button'}, 'Select video');
+                    }
+                    
                     H.img({
                         alt: self._options.name,
                         src: self._options.thumbnail.uri
