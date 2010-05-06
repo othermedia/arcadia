@@ -356,6 +356,11 @@ Arcadia = new JS.Class('Arcadia', {
                 return this.representation().getHTML();
             },
             
+            hasDescription: function() {
+                var desc = this._options.description;
+                return typeof desc === 'string' && desc.length > 0;
+            },
+            
             hasVideo: function() {
                 var video = this._options.video, count = 0, p;
                 if (typeof video !== 'object') return false;
@@ -504,8 +509,12 @@ Arcadia = new JS.Class('Arcadia', {
                     },
                     
                     _toggle: function(newState) {
+                        if (!this._item.hasDescription()) return;
+                        
                         var oldState = newState === 'EXPANDED' ? 'COLLAPSED' : 'EXPANDED';
+                        
                         this.setState('ANIMATING');
+                        
                         this._descWrapper.animate({
                             height: {
                                 from: this._heights[oldState],
@@ -527,12 +536,14 @@ Arcadia = new JS.Class('Arcadia', {
                                     self._videoButton = Ojay(C.div({className: 'video-button'}, 'Play video'));
                                 }
                                 
-                                self._descWrapper = Ojay(C.div({className: 'description-wrapper'}, function(W) {
-                                    self._descToggle  = Ojay(W.div({className: 'description-toggle'}))
-                                        .setContent(self._toggleText[self._initialState]);
-                                    self._description = Ojay(W.div({className: 'description'}))
-                                        .setContent(self._options.description);
-                                }));
+                                if (self._item.hasDescription()) {
+                                    self._descWrapper = Ojay(C.div({className: 'description-wrapper'}, function(W) {
+                                        self._descToggle  = Ojay(W.div({className: 'description-toggle'}))
+                                            .setContent(self._toggleText[self._initialState]);
+                                        self._description = Ojay(W.div({className: 'description'}))
+                                            .setContent(self._options.description);
+                                    }));
+                                }
                             }));
                         }));
                         
@@ -564,26 +575,32 @@ Arcadia = new JS.Class('Arcadia', {
                     
                     _addEvents: function() {
                         this._html.on('click')._(this._item.getGallery()).centreOn(this._item);
-                        this._descToggle.on('click')._(this).toggle();
+                        
+                        if (this._item.hasDescription()) {
+                            this._descToggle.on('click')._(this).toggle();
+                        }
+                        
                         setTimeout(function() {
                             this._setup();
                         }.bind(this), 10);
                     },
                     
                     _setup: function() {
-                        this._heights = {};
-                        this._heights.EXPANDED = this._descWrapper.getHeight();
-                        this._description.hide();
-                        this._heights.COLLAPSED = this._descWrapper.getHeight();
-                        this._descWrapper.setStyle({
-                            position: 'absolute',
-                            left:     0,
-                            bottom:   0,
-                            width:    this._options.width + 'px',
-                            height:   this._heights[this._initialState] + 'px',
-                            overflow: 'hidden'
-                        });
-                        this._description.show();
+                        if (this._item.hasDescription()) {
+                            this._heights = {};
+                            this._heights.EXPANDED = this._descWrapper.getHeight();
+                            this._description.hide();
+                            this._heights.COLLAPSED = this._descWrapper.getHeight();
+                            this._descWrapper.setStyle({
+                                position: 'absolute',
+                                left:     0,
+                                bottom:   0,
+                                width:    this._options.width + 'px',
+                                height:   this._heights[this._initialState] + 'px',
+                                overflow: 'hidden'
+                            });
+                            this._description.show();
+                        }
                         
                         this.hide({animate: false});
                         this.setState(this._initialState);

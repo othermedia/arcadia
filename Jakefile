@@ -44,6 +44,8 @@ jake_hook :build_complete do |build|
     end
   end
   
+  gallery[:items][4][:description] = ""
+  
   puts "Writing images listing to ./test/items.json"
   
   File.open(ITEMS_JSON, "w+") do |f|
