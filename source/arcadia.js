@@ -578,6 +578,7 @@ Arcadia = new JS.Class('Arcadia', {
                         
                         if (this._item.hasDescription()) {
                             this._descToggle.on('click')._(this).toggle();
+                            this._descWrapper.on('click', Ojay.stopPropagate);
                         }
                         
                         setTimeout(function() {
