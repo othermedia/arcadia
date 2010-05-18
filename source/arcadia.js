@@ -6,7 +6,7 @@
 Arcadia = new JS.Class('Arcadia', {
     include: [JS.State, Ojay.Observable],
     
-    initialize: function(container, json) {
+    initialize: function(container, description) {
         var x = 0, y = 0;
         
         this._container = Ojay(container);
@@ -16,10 +16,10 @@ Arcadia = new JS.Class('Arcadia', {
         ._(this._container).insert(this._viewport, 'after')
         ._(this._viewport).setContent(this._container);
         
-        this._centre = Math.floor((json.items.length - 1) / 2);
+        this._centre = Math.floor((description.items.length - 1) / 2);
         this._left   = 0;
         
-        this._items = new this.klass.ModNList(json.items.map(function(item, i) {
+        this._items = new this.klass.ModNList(description.items.map(function(item, i) {
             var galleryItem = new this.klass.Item(this, item);
             
             galleryItem.representation().on('ready', function(rep) {
