@@ -7,7 +7,7 @@ Arcadia = new JS.Class('Arcadia', {
     include: [JS.State, Ojay.Observable],
     
     initialize: function(container, description) {
-        var x = 0, y = 0;
+        var x = 0, y = 0, items, right, left;
         
         this._container = Ojay(container);
         this._viewport  = Ojay(Ojay.HTML.div({className: 'viewport'}));
@@ -16,26 +16,34 @@ Arcadia = new JS.Class('Arcadia', {
         ._(this._container).insert(this._viewport, 'after')
         ._(this._viewport).setContent(this._container);
         
-        this._centre = Math.floor((description.items.length - 1) / 2);
-        this._left   = 0;
+        this._centre = 0;
+        this._left   = Math.ceil((description.items.length - 1) / 2);
         
-        this._items = new this.klass.ModNList(description.items.map(function(item, i) {
-            var galleryItem = new this.klass.Item(this, item);
+        items = description.items.map(function(item, i) {
+            item = new this.klass.Item(this, item);
             
-            galleryItem.representation().on('ready', function(rep) {
-                if (i === this._centre) rep.show({animate: false});
-            }, this);
+            x += item.getWidth();
             
-            this._container.insert(galleryItem.getHTML(), 'bottom');
-            
-            x += galleryItem.getWidth();
-            
-            if (galleryItem.getHeight() > y) {
-                y = galleryItem.getHeight();
+            if (item.getHeight() > y) {
+                y = item.getHeight();
             }
             
-            return galleryItem;
-        }, this));
+            return item;
+        }, this);
+        
+        this._items = new this.klass.ModNList(items);
+        
+        right = items.slice(this._left);
+        left  = items.slice(this._centre, this._left);
+        
+        right.concat(left).forEach(function(item, i) {
+            this._container.insert(item.getHTML(), 'bottom');
+            item.representation().on('ready', function(rep) {
+                if (item === this.getCentre()) {
+                    rep.show({animate: false});
+                }
+            }, this);
+        }, this);
         
         this._viewport.setStyle({
             position: 'relative',
