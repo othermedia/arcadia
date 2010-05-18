@@ -113,6 +113,24 @@
                 gallery.on('videoselect', function(gallery, video) {
                     console.log(video);
                 });
+                
+                gallery.on('centreEnd', function() {
+                    var images = Ojay('#gallery .item img'), indices;
+                    
+                    indices = images.map(function(img, i) {
+                        return parseInt(img.node.alt.substr(3));
+                    });
+                    
+                    indices.forEach(function(index, i) {
+                        var prev = indices[i-1];
+                        
+                        if (typeof prev === "number" && index <= prev && index !== 0) {
+                            console.error('Item out of order: #' + (prev + 1) + ' expected, got #' + index);
+                        }
+                    });
+                    
+                    console.log(indices);
+                });
             }
         });
     });

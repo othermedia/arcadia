@@ -91,7 +91,7 @@ Arcadia = new JS.Class('Arcadia', {
             containerStyle.left  = (this.getLeftOffset() - offset) + 'px';
             containerStyle.right = '';
             
-            this._splice(clones, 'top');
+            this._splice(clones.reverse(), 'top');
         } else {
             containerStyle.left  = '';
             containerStyle.right = (this.getRightOffset() - offset) + 'px';
