@@ -17,7 +17,7 @@ Arcadia = new JS.Class('Arcadia', {
         ._(this._viewport).setContent(this._container);
         
         this._centre = 0;
-        this._left   = Math.ceil((description.items.length - 1) / 2);
+        this._left   = Math.ceil((description.items.length + 1) / 2);
         
         items = description.items.map(function(item, i) {
             item = new this.klass.Item(this, item);
