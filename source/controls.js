@@ -47,10 +47,20 @@ Arcadia.Controls = {
     }),
     
     Play: new JS.Class('Arcadia.Controls.Play', {
-        initialize: function(gallery) {
+        initialize: function(gallery, options) {
             this._gallery = gallery;
             this._playing = false;
             this._timer   = null;
+            
+            // The options parameter could be an array passed through by the
+            // Arcadia#addControls method, or just a normal argument.
+            if (typeof options == 'object') {
+                if (options instanceof Array) options = options[0] || {};
+            } else {
+                options = {};
+            }
+            
+            this._direction = options.direction == 'previous' ? 'previous' : 'next';
             
             this._gallery.on('centreStart', function(gallery, item, controller) {
                 if (!(controller && controller.isA(this.klass))) {
@@ -61,10 +71,10 @@ Arcadia.Controls = {
         
         play: function() {
             this._timer = setInterval(function() {
-                this._gallery.next(this);
+                this._gallery[this._direction](this);
             }.bind(this), 3000);
             
-            this._gallery.next(this);
+            this._gallery[this._direction](this);
             
             if (this._html) {
                 this._html.replaceClass('paused', 'playing').setContent('Pause');

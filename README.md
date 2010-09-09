@@ -90,7 +90,10 @@ is quite straightforward. Three control classes come with the library:
   thumbnail property of each element to be set.
 * `Arcadia.Controls.Play` provides a play/pause button that when clicked,
   centres the gallery on the next item, and starts a timer that---until another
-  control is used---goes to the next item every few seconds.
+  control is used---goes to the next item every few seconds. Pass an options
+  object to modify its behaviour; currently the only supported parameter is
+  the `direction`, which can be either `'next'` or `'previous'` (`'next'`) is
+  the default.
 * `Arcadia.Controls.Next` adds 'Next' and 'Previous' buttons that centre the
   gallery on the next or previous image.
 
@@ -128,17 +131,6 @@ Future development
 
 The following is a sketch of future development which could improve the
 library.
-
-### More flexible `addControls` method
-
-Arguments to the `Arcadia#addControls` method after the class name could be
-passed through to the class constructor, enabling more complex behaviours.
-
-### A choice of direction for `Arcadia.Controls.Play`
-
-Currently the gallery will shift its focus to the next image with each 'tick'
-of the timer. The direction could be turned into an option, and it could centre
-on the previous image rather than the next one.
 
 ### Renaming the `Arcadia` class
 

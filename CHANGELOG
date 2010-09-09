@@ -1,3 +1,11 @@
+Version 0.1.3, 2010.09.09
+
+* Pass additional arguments to `Arcadia#addControls` through to the control
+  constructor.
+* Add an `options` argument to the `Arcadia.Controls.Play` constructor.
+* Allow the selection of the direction of travel caused by
+  `Arcadia.Controls.Play`; it can be either `previous` or `next`.
+
 Version 0.1.2, 2010.09.09
 
 * Added a decent README.

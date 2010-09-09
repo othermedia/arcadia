@@ -68,7 +68,8 @@ Arcadia = new JS.Class('Arcadia', {
     },
     
     addControls: function(klass) {
-        return new (klass || this.klass.Controls.Thumbnails)(this);
+        var args = Array.prototype.slice.call(arguments, 1);
+        return new (klass || this.klass.Controls.Thumbnails)(this, args);
     },
     
     getItems: function() {
