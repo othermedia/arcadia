@@ -12,10 +12,11 @@ source software released under the BSD license.
 Dependencies
 ------------
 
-Running the test suite requires the [JSON gem][json], as well as [Jake][jake].
-To get them just run the following command (with `sudo` if you prefer).
+Running the test suite requires the [JSON gem][json], as well as [Jake][jake]
+and [Helium][helium]. To get them just run the following command (with `sudo`
+if you prefer).
 
-    gem install json jake
+    gem install json jake helium
 
 Then just run the `jake` command in the root directory of the library to build
 it and the JSON feed for the test suite.
