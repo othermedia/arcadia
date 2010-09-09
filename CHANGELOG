@@ -1,3 +1,9 @@
+Version 0.1.2, 2010.09.09
+
+* Added a decent README.
+* Descriptions passed to the gallery constructor can now be JSON strings, not
+  just objects.
+
 Version 0.1.1, 2010.05.18
 
 * Empty descriptions shouldn't be displayed.
