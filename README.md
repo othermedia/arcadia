@@ -175,6 +175,6 @@ Making all control elements into e.g. `button` elements, as seen in our
   [ojay]:     http://ojay.othermedia.org
   [yui]:      http://developer.yahoo.com/yui/2/
   [jsclass]:  http://jsclass.jcoglan.com/
-  [ps]:       http://www.paulsmith.co,uk
+  [ps]:       http://www.paulsmith.co.uk/
   [helium]:   http://github.com/othermedia/helium
   [youtube]:  http://github.com/othermedia/youtube
