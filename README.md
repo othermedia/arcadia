@@ -177,4 +177,4 @@ Making all control elements into e.g. `button` elements, as seen in our
   [jsclass]:  http://jsclass.jcoglan.com/
   [ps]:       http://www.paulsmith.co.uk/
   [helium]:   http://github.com/othermedia/helium
-  [youtube]:  http://github.com/othermedia/youtube
+  [youtube]:  http://github.com/othermedia/youtube-player
