@@ -169,6 +169,13 @@ improvement.
 Making all control elements into e.g. `button` elements, as seen in our
 [YouTube player][youtube], would make them accessible to keyboard users.
 
+### Better implementation of the internal list data structure
+
+While the internal list data structure has some nice properties in theory, in
+practice the implementation is a series of array-based hacks. Improving this
+state of affairs would clean up the implementation significantly and make the
+library more testable and more robust.
+
 
   [json]:     http://flori.github.com/json
   [jake]:     http://github.com/jcoglan/jake
