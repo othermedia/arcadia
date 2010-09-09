@@ -4,13 +4,10 @@
     <title>Arcadia tests</title>
     
     <script src="http://js.othermedia.com/helium.js" type="text/javascript"></script>
-    
     <script type="text/javascript">
-        Helium.use('yui', '2.7.0');
-        // Helium.use('ojay', '0.4');
-        Helium.use('ojay', '0.4.1');
+        Helium.use('yui', '2.8.0r4');
+        Helium.use('ojay', '0.4.2');
     </script>
-    
     <script src="./packages.js" type="text/javascript"></script>
     
     <style type="text/css" media="screen">
@@ -84,8 +81,7 @@
         
         Ojay.HTTP.GET('items.json', {}, {
             onSuccess: function(response) {
-                var json    = response.parseJSON(),
-                    gallery = new Arcadia('#gallery', json),
+                var gallery = new Arcadia('#gallery', response.responseText),
                     
                     thumbs  = gallery.addControls(Arcadia.Controls.Thubmnails),
                     thtml   = thumbs.getHTML(),

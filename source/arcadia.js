@@ -7,6 +7,8 @@ Arcadia = new JS.Class('Arcadia', {
     include: [JS.State, Ojay.Observable],
     
     initialize: function(container, description) {
+        if (typeof description == 'string') description = description.parseJSON();
+        
         var x = 0, y = 0, items, right, left;
         
         this._container = Ojay(container);
