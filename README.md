@@ -17,6 +17,9 @@ To get them just run the following command (with `sudo` if you prefer).
 
     gem install json jake
 
+Then just run the `jake` command in the root directory of the library to build
+it and the JSON feed for the test suite.
+
 The gallery itself relies on [Ojay][ojay] (and therefore [YUI][yui] and
 [JS.Class][jsclass]); its dependencies, and the objects it provides, are listed
 in the `jake.yml` file.
